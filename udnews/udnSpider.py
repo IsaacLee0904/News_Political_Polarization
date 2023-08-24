@@ -136,6 +136,8 @@ def main(keyword, delay_time):
     # Re-find the elements every time to avoid StaleElementReferenceException
     level_1_list = driver.find_elements(by=By.XPATH, value='//div[@class="story-list__text"]')
 
+    level_1_list = driver.find_elements(by=By.XPATH, value='//div[@class="story-list__text"]')
+
     i = 0
     while i < len(level_1_list):
         # Re-fetch the updated list of elements
@@ -146,28 +148,29 @@ def main(keyword, delay_time):
             break
 
         sublink = sublinks[i]
-
+        a_item = dict()
+        
         try:
             node_child = sublink.find_element(by=By.XPATH, value='h2/a')
-            a_item = dict()
-            if node_child:
-                a_item['title'] = node_child.text
-                a_item['url'] = node_child.get_attribute('href')
-            node_child = sublink.find_element(by=By.XPATH, value='div[@class="story-list__info"]/a')
-            if node_child:
-                a_item['category'] = node_child.text
-            node_child = sublink.find_element(by=By.XPATH, value='div[@class="story-list__info"]/time')
-            if node_child:
-                a_item['up_datetime'] = node_child.text
-            if a_item:
-                a_item['content'] = get_level_2(driver, a_item['url'])
-                print('Get a record ===>', a_item)
-                process_item(data_json, a_item)
-
+            a_item['title'] = node_child.text
+            a_item['url'] = node_child.get_attribute('href')
         except NoSuchElementException:
-            continue
+            pass
 
-    
+        try:
+            node_child = sublink.find_element(by=By.XPATH, value='div[@class="story-list__info"]/a')
+            a_item['category'] = node_child.text
+        except NoSuchElementException:
+            pass
+
+        try:
+            node_child = sublink.find_element(by=By.XPATH, value='div[@class="story-list__info"]/time')
+            a_item['up_datetime'] = node_child.text
+        except NoSuchElementException:
+            pass
+
+        print(a_item)
+        i += 1  # Increment the iterator
 
     driver.quit()
 
