@@ -51,20 +51,6 @@ def get_selenium():
 
     return driver
 
-def get_level_2(driver, url):
-    # using Selenium drive to news URL
-    driver.get(url)
-    html = driver.page_source
-    soup = BeautifulSoup(html, 'html.parser')
-
-    content_selector = '.container .article-content__paragraph'
-    content_divs = soup.select(content_selector)
-    
-    # get entire content
-    full_content = ' '.join([div.text.strip() for div in content_divs])
-    
-    return full_content if full_content else 'Content not found'
-
 def snapshot_page_source(checkpoint, driver):
     # Storing the page source in page variable
     page = driver.page_source.encode('utf-8')
@@ -81,16 +67,18 @@ def snapshot_page_source(checkpoint, driver):
     file_.close()
 
 def close_popup_if_exists(driver):
+
     try:
         # Switch to the alert
         alert = driver.switch_to.alert
         alert.dismiss()  # Close the popup
         print("Popup closed.")
+
     except NoAlertPresentException:
         # No popup found
         pass
 
-def main(keyword, delay_time):
+def get_level_1(keyword, delay_time):
     '''
     Start to crawl a webpage, and using beautifulsoup
     '''
@@ -136,9 +124,9 @@ def main(keyword, delay_time):
     # Re-find the elements every time to avoid StaleElementReferenceException
     level_1_list = driver.find_elements(by=By.XPATH, value='//div[@class="story-list__text"]')
 
-    level_1_list = driver.find_elements(by=By.XPATH, value='//div[@class="story-list__text"]')
-
     i = 0
+    layer1_results = []  # Container to store all the a_item results
+
     while i < len(level_1_list):
         # Re-fetch the updated list of elements
         sublinks = driver.find_elements(by=By.XPATH, value='//div[@class="story-list__text"]')
@@ -169,10 +157,41 @@ def main(keyword, delay_time):
         except NoSuchElementException:
             pass
 
-        print(a_item)
+        # print(a_item)
+        layer1_results.append(a_item)  # Add the a_item to the results list
         i += 1  # Increment the iterator
 
     driver.quit()
+
+    return layer1_results
+
+def get_level_2(driver, url):
+    # using Selenium drive to news URL
+    driver.get(url)
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+
+    content_selector = '.container .article-content__paragraph'
+    content_divs = soup.select(content_selector)
+    
+    # get entire content
+    full_content = ' '.join([div.text.strip() for div in content_divs])
+    
+    return full_content if full_content else 'Content not found'
+
+def main(keyword, delay_time):
+
+    layer1_data = get_level_1(keyword, delay_time)
+
+    for news in layer1_data:
+        
+        try:
+            content = get_level_2(news['url'])
+            item['content'] = content
+            print(news)
+
+        except:
+            pass
 
 
 if __name__ == "__main__":
