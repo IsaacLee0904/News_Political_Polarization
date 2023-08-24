@@ -1,15 +1,23 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-#from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.remote.webelement import WebElement
+### imporat package
+import datetime
 from time import sleep
-from bs4 import BeautifulSoup
 import sys
+## package for web scraping
+from bs4 import BeautifulSoup
 import requests
 import json
-import datetime
+## web crawling with Selenium
+# basic selenium
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.by import By
+# Exceptions related to Selenium
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
+
 
 def onStart():
     suffix_output = "Udn.json"
@@ -171,4 +179,3 @@ if __name__ == "__main__":
 
     if sys.argv[1] and sys.argv[2]:
         main(sys.argv[1], int(sys.argv[2]))
-
