@@ -16,17 +16,17 @@ Ensure that you have the following installed:
 
 To install the Selenium package, run the following command:
 
-\`\`\`bash
+```bash
 pip install selenium
-\`\`\`
+```
 
 ### 2. Install Scrapy-Selenium
 
 To install the Scrapy-Selenium package, run the following command:
 
-\`\`\`bash
+```bash
 pip install scrapy-selenium
-\`\`\`
+```
 
 ### 3. Install ChromeDriver
 
@@ -44,14 +44,14 @@ To ensure everything is set up correctly:
 1. Open a Python shell or script.
 2. Try importing and initializing a Selenium WebDriver instance.
 
-\`\`\`python
+```python
 from selenium import webdriver
 
 driver = webdriver.Chrome(executable_path='/path/to/chromedriver')
 driver.get('https://www.google.com')
 print(driver.title)
 driver.quit()
-\`\`\`
+```
 
 Replace `'/path/to/chromedriver'` with the path to your `chromedriver` executable. If everything works correctly, this will launch a Chrome browser window, navigate to Google, print the title, and then close the browser.
 
