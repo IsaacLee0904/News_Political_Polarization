@@ -84,7 +84,6 @@ def get_level_1(driver, keyword, delay_time):
     Start to crawl a webpage, and using beautifulsoup
     '''
 
-    # data_json = onStart()
 
     start_url = "https://udn.com/search/word/2/%s" % (keyword)
 

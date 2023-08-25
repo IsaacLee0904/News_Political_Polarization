@@ -1,8 +1,0 @@
-(1) pip install selenium
-
-(2) pip install scrapy-selenium
-
-(3) install webdriver
-https://chromedriver.storage.googleapis.com/index.html?path=99.0.4844.51/
-
-(4) 因為它需要藉由開啟某個 browser（我的範例是 chrome）來達到自動增加內容的目標，故不建議使用 google colab。如果想跑此專案、又沒有設備的話，請洽Maty。
