@@ -1,5 +1,5 @@
 
-# Selenium Web Scraping Project
+# Udnews Spider Doc.
 
 This project demonstrates web scraping using Selenium and Scrapy-Selenium. Below, you'll find instructions on setting up your environment and the actual code used for the scraping.
 

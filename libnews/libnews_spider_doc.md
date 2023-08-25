@@ -1,6 +1,5 @@
 
-# `libnewsSpider` Scrapy Spider
-
+# libnews Spider Doc.
 ## Overview
 
 `libnewsSpider` is a Scrapy spider designed to crawl and extract news articles from `ltn.com.tw`. It fetches the URL, title, category, update time, and content of the articles based on a specific search query.
