@@ -2,6 +2,7 @@
 import datetime
 from time import sleep
 import sys
+import re
 ## package for web scraping
 from bs4 import BeautifulSoup
 import requests
@@ -78,12 +79,12 @@ def close_popup_if_exists(driver):
         # No popup found
         pass
 
-def get_level_1(keyword, delay_time):
+def get_level_1(driver, keyword, delay_time):
     '''
     Start to crawl a webpage, and using beautifulsoup
     '''
 
-    data_json = onStart()
+    # data_json = onStart()
 
     start_url = "https://udn.com/search/word/2/%s" % (keyword)
 
@@ -161,7 +162,7 @@ def get_level_1(keyword, delay_time):
         layer1_results.append(a_item)  # Add the a_item to the results list
         i += 1  # Increment the iterator
 
-    driver.quit()
+    # driver.quit()
 
     return layer1_results
 
@@ -173,25 +174,43 @@ def get_level_2(driver, url):
 
     content_selector = '.container .article-content__paragraph'
     content_divs = soup.select(content_selector)
+
+    # If content_divs is an empty list, change the content_selector
+    if not content_divs:
+        content_selector = '.container .story__text__wrapper'
+        content_divs = soup.select(content_selector)
     
     # get entire content
     full_content = ' '.join([div.text.strip() for div in content_divs])
-    
+    full_content = full_content.replace('\n', '')
+
     return full_content if full_content else 'Content not found'
 
 def main(keyword, delay_time):
 
-    layer1_data = get_level_1(keyword, delay_time)
+    # Initializing the JSON file for output
+    json_file = onStart()
+
+    driver = get_selenium()
+
+    layer1_data = get_level_1(driver, keyword, delay_time)
 
     for news in layer1_data:
         
-        try:
-            content = get_level_2(news['url'])
-            item['content'] = content
+        try:      
+            start_url = news['url']
+            content = get_level_2(driver, start_url)
+            news['content'] = content
             print(news)
+            
+            # Using process_item to save the news data to the JSON file
+            process_item(json_file, news)
 
         except:
             pass
+
+    # Closing the JSON file after saving all the news data
+    onStop(json_file)
 
 
 if __name__ == "__main__":
