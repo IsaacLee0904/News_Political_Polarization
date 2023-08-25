@@ -45,11 +45,10 @@ To use Selenium with the Chrome browser, you'll need the ChromeDriver. Here's ho
 1. Ensure you have followed the installation guide above.
 2. Clone this repository to your local machine.
 3. Navigate to the directory containing `udnSpider.py`.
-4. Run the script using the command: 
+4. Run the script using the command: `udnSpider.py 萊豬 2`.
 ```bash
-python udnSpider.py keyword delaytime`
+python udnSpider.py keyword delaytime
 ```
-Example`udnSpider.py 萊豬 2`.
 5. The script will generate a JSON file with the scraped data.
 
 ---
