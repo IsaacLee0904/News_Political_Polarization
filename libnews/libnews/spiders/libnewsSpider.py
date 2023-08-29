@@ -50,20 +50,25 @@ class LibnewsspiderSpider(scrapy.Spider):
 
 
     def parse_newscontent(self, response):
-
+        
         print('[LibnewsspiderSpider] Enter parse_newscontent')
 
         dict_item = response.meta['item_1']
 
-        # Check the URL structure and choose the appropriate XPath
-        if "news.ltn.com.tw/news" in response.url:
-            content = response.xpath('//*[@id="ltnRWD"]/div[10]/section/div[4]/div[2]/p/text()').getall()
-        elif "ec.ltn.com.tw/article" in response.url:
-            content = response.xpath('//*[@id="talk_rwd"]/div[7]/section/div[2]/div[2]/p/text()').getall()
-        else:
-            print("Content not found!")
-            content = []
+        # Check the URL structure and choose the appropriate selector
+        # if "news.ltn.com.tw/news" in response.url:
+        #     content_elements = response.css("#ltnRWD > div:nth-child(10) > section > div:nth-child(4) > div:nth-child(2) > p::text").getall()
+        # elif "ec.ltn.com.tw/article" in response.url:
+        #     content_elements = response.css("#talk_rwd > div:nth-child(7) > section > div:nth-child(2) > div:nth-child(2) > p::text").getall()
+        # else:
+        # content_elements = response.css(".article .text").getall()
+        soup = BeautifulSoup(response.text, 'lxml')
+        content_elements = soup.select(".article .text") 
+        if not content_elements:
+            content_selector = '.whitecon .text'
+            content_elements = soup.select(content_selector)
 
-        content = ' '.join(content).strip()
+        # Combine the extracted content and return
+        content = ' '.join([element.text for element in content_elements])
         dict_item['content'] = content
         yield dict_item

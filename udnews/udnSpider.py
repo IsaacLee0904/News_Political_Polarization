@@ -84,7 +84,6 @@ def get_level_1(driver, keyword, delay_time):
     Start to crawl a webpage, and using beautifulsoup
     '''
 
-
     start_url = "https://udn.com/search/word/2/%s" % (keyword)
 
     # Configure Chrome to ignore SSL certificate errors
@@ -101,8 +100,10 @@ def get_level_1(driver, keyword, delay_time):
     counter_i = 0
     per_page = 10
     last_snapshot = 0
+    max_loop_count = 100  # Setting a maximum loop count
+    loop_count = 0
 
-    while True:
+    while loop_count < max_loop_count:
         # Scroll down to bottom
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
@@ -120,6 +121,8 @@ def get_level_1(driver, keyword, delay_time):
         if counter_i > (last_snapshot + per_page):
             last_snapshot = counter_i
             snapshot_page_source(str(last_snapshot), driver)
+        
+        loop_count += 1
 
     # Re-find the elements every time to avoid StaleElementReferenceException
     level_1_list = driver.find_elements(by=By.XPATH, value='//div[@class="story-list__text"]')

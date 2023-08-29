@@ -16,7 +16,7 @@ class LibnewsPipeline:
         currentDT = datetime.datetime.now()
         dictfilename = currentDT.strftime("%Y%m%d%H%M%S_") + suffix_output
         print(dictfilename)
-        self.file = open(dictfilename, 'w')
+        self.file = open(dictfilename, 'w', encoding='utf-8')
 
     def close_spider(self, spider):
         self.file.close()
@@ -25,7 +25,7 @@ class LibnewsPipeline:
         #print(item)
         line = json.dumps(dict(item),ensure_ascii=False) + "\n"
         #in windows issue
-        #self.file.write(line.encode('utf-8'))
+        # self.file.write(line.encode('utf-8'))
         self.file.write(line)
 
         return item
