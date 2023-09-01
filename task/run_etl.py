@@ -7,7 +7,6 @@ sys.path.append(project_root)
 
 # import moudle
 from utils.etl_utils import get_all_json
-from utils.etl_utils import recrawl_content
 from utils.etl_utils import save_csv_to_db
 from utils.etl_utils import move_to_backup_folder
 
@@ -52,7 +51,8 @@ def main():
             # data cleaning
             news_df['source'] = source 
             news_df['keyword'] = keyword 
-
+            news_df["content"] = news_df["content"].replace('\n', '')
+            
             # reshape df 
             news_df = news_df[['source', 'keyword', 'title', 'category', 'up_datetime', 'content', 'url']]
             print(news_df.head())
@@ -61,14 +61,14 @@ def main():
             new_file_name = os.path.join(output_folder, file_name + ".csv")
             news_df.to_csv(new_file_name, index = False)
 
-            # # storage dataframe into database
-            # try:
-            #     save_csv_to_db(new_file_name, db_path)
-            #     move_to_backup_folder(data_json, backup_folder)
-            #     print(f"{data_json} has been moved to backup folder.")
+            # storage dataframe into database
+            try:
+                save_csv_to_db(new_file_name, db_path)
+                move_to_backup_folder(data_json, backup_folder)
+                print(f"{data_json} has been moved to backup folder.")
                     
-            # except Exception as e:
-            #     print(f"Error processing {data_json}: {e}")
+            except Exception as e:
+                print(f"Error processing {data_json}: {e}")
 
 if __name__ == '__main__':
     main()

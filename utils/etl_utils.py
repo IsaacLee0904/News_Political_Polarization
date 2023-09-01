@@ -19,21 +19,6 @@ def get_all_json():
 
     return json_list
 
-def fetch_content_from_url(url):
-    response = requests.get(url)
-    # ... 你的解析邏輯，例如使用 BeautifulSoup 提取新聞內文 ...
-    content = "Extracted content from the website"
-    return content
-
-def recrawl_content(news_df):
-
-    missing_content_indices = news_df[news_df['content'] == 'Content not found'].index
-    
-    for idx in missing_content_indices:
-        url = news_df.loc[idx, 'url']
-        new_content = fetch_content_from_url(url)
-        news_df.loc[idx, 'content'] = new_content
-
 def save_csv_to_db(csv_filename, db_path):
     """
     Save data from CSV to SQLite table based on the filename format.
