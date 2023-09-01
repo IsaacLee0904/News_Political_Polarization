@@ -61,3 +61,14 @@ def move_to_backup_folder(file_path, backup_folder):
         os.makedirs(backup_folder)
     
     shutil.move(file_path, os.path.join(backup_folder, os.path.basename(file_path)))
+
+def filter_non_news_content(dataframes_dict):
+    """Filter out non-news content from the dataframes."""
+    filtered_dataframes = {}
+    
+    for table, df in dataframes_dict.items():
+        # Filter out rows where content is NaN or 'Content not found'
+        filtered_df = df[df['content'].notna() & (df['content'] != 'Content not found')]
+        filtered_dataframes[table] = filtered_df
+        
+    return filtered_dataframes
