@@ -1,12 +1,10 @@
+import sys, os
 import sqlite3
-import os
-
-
-import sqlite3
-import os
 
 # path of create database 
-db_path = "data/db/news_political_polarization.sqlite"
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+db_path = os.path.join(project_root, 'data', 'db', 'news_political_polarization.sqlite')
 
 # check if the database exist
 if not os.path.exists(os.path.dirname(db_path)):

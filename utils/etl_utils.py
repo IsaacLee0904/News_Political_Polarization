@@ -10,7 +10,7 @@ def get_all_json():
     ''' collect all spider file from tHree news folder '''
     main_directory = os.getcwd()  
     
-    json_files = glob.glob(os.path.join(main_directory, "*", "*.json"))
+    json_files = glob.glob(os.path.join(main_directory, "crawlers", "*", "*.json"))
     print(json_files)
     json_list = []
 
