@@ -1,0 +1,10 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "news_political_polarization",
+            "database": "${workspaceFolder:News_Political_Polarization}/data/db/news_political_polarization.sqlite"
+        }
+    ]
+}

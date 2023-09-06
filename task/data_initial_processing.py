@@ -1,6 +1,8 @@
 # import package
 import sys, os, glob, json, re
 import pandas as pd
+import requests
+import bs4 as BeautifulSoup
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
@@ -9,6 +11,8 @@ sys.path.append(project_root)
 from utils.etl_utils import get_all_json
 from utils.etl_utils import save_csv_to_db
 from utils.etl_utils import move_to_backup_folder
+from utils.etl_utils import crawl_news
+from utils.etl_utils import re_crawl_failed_news
 
 def main():
 
@@ -55,9 +59,10 @@ def main():
             
             # reshape df 
             news_df = news_df[['source', 'keyword', 'title', 'category', 'up_datetime', 'content', 'url']]
+            re_crawl_failed_news(news_df)
             print(news_df.head())
             
-            # # convert dataframe as csv file
+            # convert dataframe as csv file
             new_file_name = os.path.join(output_folder, file_name + ".csv")
             news_df.to_csv(new_file_name, index = False)
 

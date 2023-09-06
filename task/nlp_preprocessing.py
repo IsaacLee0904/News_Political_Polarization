@@ -26,25 +26,7 @@ shapes = {
 }
 
 # Format and print the shapes 
-print("----------------- rawdata_shape --------------------")
+print("---------------- raw_data_shape -------------------")
 for name, shape in shapes.items():
     print(f"{name}: {shape}")
 print("----------------------------------------------------")
-
-
-def filter_short_content(conn, table_name):
-    """Retrieve rows where content length is less than 50 from the specified table."""
-    
-    query = f"""
-    SELECT *
-    FROM {table_name} AA
-    WHERE LENGTH(AA.content) < 50
-    """
-    
-    # Execute the query and return the result as a DataFrame
-    return pd.read_sql(query, conn)
-
-# 使用範例:
-conn = create_connection()
-short_content_data = filter_short_content(conn, "nuclear_power")
-print(short_content_data)

@@ -1,10 +1,12 @@
 # import package
 import sys, os, glob, json, re
+import shutil
 import sqlite3
 import pandas as pd
 import requests
-import bs4 as BeautifulSoup
-import shutil
+from bs4 import BeautifulSoup
+import time
+
 
 def get_all_json():  
     ''' collect all spider file from tHree news folder '''
@@ -62,13 +64,33 @@ def move_to_backup_folder(file_path, backup_folder):
     
     shutil.move(file_path, os.path.join(backup_folder, os.path.basename(file_path)))
 
-def filter_non_news_content(dataframes_dict):
-    """Filter out non-news content from the dataframes."""
-    filtered_dataframes = {}
+def crawl_news(url):
+    """ Retrieve news content from the given URL """
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text, 'html.parser')
+    container = soup.find(id='container')
+    main = container.find('main') if container else None
+    if main:
+        paragraphs = main.find_all('p')
+        content = ' '.join([para.text.strip() for para in paragraphs])
+        return content
+    else:
+        return 'Content not found'
+
+
+def re_crawl_failed_news(df, delay = 5):
+    """ Re-crawl news with missing or very short content """
     
-    for table, df in dataframes_dict.items():
-        # Filter out rows where content is NaN or 'Content not found'
-        filtered_df = df[df['content'].notna() & (df['content'] != 'Content not found')]
-        filtered_dataframes[table] = filtered_df
-        
-    return filtered_dataframes
+    # Identify rows where content length is less than 50 or content is 'Content not found'
+    filter_condition = (df['content'] == 'Content not found')
+    
+    for idx, row in df[filter_condition].iterrows():
+        new_content = crawl_news(row['url'])
+        if new_content:
+            df.at[idx, 'content'] = new_content
+        else:
+            df.at[idx, 'content'] = None
+
+    time.sleep(delay)
+            
+    return df
