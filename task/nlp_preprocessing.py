@@ -29,4 +29,26 @@ shapes = {
 print("---------------- raw_data_shape -------------------")
 for name, shape in shapes.items():
     print(f"{name}: {shape}")
-print("----------------------------------------------------")
+print('\n')
+
+# Filter the DataFrames
+filtered_data = {key: df[df['content'].str.len() >= 50] for key, df in all_data.items()}
+
+# Extract the filtered DataFrames
+nuclear_power_df = filtered_data['nuclear_power']
+ractopamine_df = filtered_data['ractopamine']
+alongside_elections_df = filtered_data['alongside_elections']
+algal_reef_df = filtered_data['algal_reef']
+
+new_shapes = {
+    'nuclear_power_df': nuclear_power_df.shape,
+    'ractopamine_df': ractopamine_df.shape,
+    'alongside_elections_df': alongside_elections_df.shape,
+    'algal_reef_df': algal_reef_df.shape
+}
+
+# Format and print the shapes 
+print("---------------- clean_data_shape -------------------")
+for name, shape in new_shapes.items():
+    print(f"{name}: {shape}")
+print('\n')

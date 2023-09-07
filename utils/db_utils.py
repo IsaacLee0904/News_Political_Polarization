@@ -15,7 +15,7 @@ def create_connection():
 def get_all_tables_from_db(conn):
     """ Fetch all data from SQLite and print available tables """
     # Get the list of all tables in the database
-    tables_query = "SELECT name FROM sqlite_master WHERE type='table';"
+    tables_query = "SELECT name FROM sqlite_master WHERE type='table' AND name!='sqlite_sequence';"
     tables = conn.execute(tables_query).fetchall()
     tables = [table[0] for table in tables]
     
