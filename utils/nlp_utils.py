@@ -1,4 +1,6 @@
 import re
+import numpy as np
+import tensorflow as tf
 from ckiptagger import data_utils, WS
 from sklearn.feature_extraction.text import TfidfVectorizer
 from gensim.models import Word2Vec
@@ -66,36 +68,43 @@ def compute_tfidf(corpus):
     
     return tfidf_matrix, vectorizer
 
-def filter_common_words_with_tfidf(df, column_name):
+def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.75):
     """
-    Filter out common words from a DataFrame based on TF-IDF.
+    Filter out common words from a DataFrame based on a pre-trained TF-IDF vectorizer.
+    
+    This function uses the TF-IDF scores of words in the provided column to identify
+    and filter out the most common words. The number of words to filter is determined
+    by the provided threshold.
 
     Parameters:
     - df: pandas DataFrame
         The DataFrame containing the column to be filtered.
     - column_name: str
-        The column name in df to be filtered.
+        The name of the column in df that contains the text data to be filtered.
+    - vectorizer: TfidfVectorizer object
+        The pre-trained TF-IDF vectorizer.
+    - threshold: float, default=0.85
+        A float value between 0 and 1. Determines the percentage of the most common words 
+        to be filtered based on their TF-IDF scores. For example, a threshold of 0.85 
+        means the top 85% most common words will be filtered.
 
     Returns:
     - df: pandas DataFrame
-        A DataFrame with common words filtered out.
+        A DataFrame with the specified column filtered to exclude the most common words 
+        as determined by the threshold.
     """
-    # Compute TF-IDF
-    tfidf_matrix, vectorizer = compute_tfidf(df[column_name].tolist())
-
-    # Check if vectorizer has the get_feature_names_out method
-    if hasattr(vectorizer, "get_feature_names_out"):
-        feature_names = vectorizer.get_feature_names_out()
-    else:
-        feature_names = vectorizer.get_feature_names()
-
-    # Find words with low TF-IDF score 
-    threshold = 0.9
-    low_tfidf_words = [word for word, score in zip(feature_names, tfidf_matrix.sum(axis=0).tolist()[0]) if score < threshold]
-
-    # Filter out the common words
-    df[column_name] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if word not in low_tfidf_words]))
-
+    
+    tfidf_matrix = vectorizer.transform(df[column_name].tolist())
+    tfidf_scores = np.sum(tfidf_matrix, axis=0).A1
+    sorted_indices = np.argsort(tfidf_scores)[::-1]
+    
+    # Calculate the number of words to filter based on the threshold
+    num_words_to_filter = int(len(tfidf_scores) * threshold)
+    
+    common_words = set([vectorizer.get_feature_names()[idx] for idx in sorted_indices[:num_words_to_filter]])
+    
+    df[column_name] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if word not in common_words]))
+    
     return df
 
 def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4):

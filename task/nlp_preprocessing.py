@@ -1,14 +1,33 @@
-# import package
+## import package
+# basic package
 import sys, os, glob, json, re
 import pandas as pd
+import numpy as np
+import warnings
+# deal with warnings message
+warnings.filterwarnings("ignore")
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+# NLP package
 from ckiptagger import data_utils, WS
 # data_utils.download_data_gdown("./")  # only run if excute first time 
+import tensorflow as tf
+import tensorflow as tf
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+print(tf.config.experimental.list_physical_devices('GPU')) 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from gensim.models import Word2Vec
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
+# import module
 from utils.db_utils import create_connection
 from utils.db_utils import get_all_tables_from_db
 from utils.db_utils import close_connection
@@ -67,7 +86,7 @@ stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
 with open(stop_words_path, 'r', encoding='utf-8') as file:
     stop_words = [line.strip() for line in file]
 
-nuclear_power_df = clean_text(nuclear_power_df, stop_words) # testing with 100 rows
+nuclear_power_df = clean_text(nuclear_power_df.head(100), stop_words) # testing with 100 rows
 
 # Tokenize the data
 ws = WS("./ckiptagger")
@@ -75,8 +94,15 @@ nuclear_power_df = tokenize_news_content(nuclear_power_df, ws)
 # ractopamine_df = tokenize_news_content(ractopamine_df, ws)
 # alongside_elections_df = tokenize_news_content(alongside_elections_df, ws)
 # algal_reef_df = tokenize_news_content(algal_reef_df, ws)
+print(nuclear_power_df['tokenized_content'][0])
+print('-'*100)
 
 # TF-IDF
-nuclear_power_df = filter_common_words_with_tfidf(nuclear_power_df, 'tokenized_content')
+# Step1. Train the TF-IDF model
+tfidf_matrix, vectorizer = compute_tfidf(nuclear_power_df['tokenized_content'].tolist())
+
+# Step2. Use the trained vectorizer to filter out common words
+nuclear_power_df = filter_common_words_with_tfidf(nuclear_power_df, 'tokenized_content', vectorizer)
+print(nuclear_power_df['tokenized_content'][0])
 
 # Word embeddings
