@@ -57,6 +57,9 @@ def save_csv_to_db(csv_filename, db_path):
     data.to_sql(table_name, conn, if_exists='append', index=False)
     conn.close()
 
+def save_df_to_csv(df):
+    pass
+
 def move_to_backup_folder(file_path, backup_folder):
     
     if not os.path.exists(backup_folder):
