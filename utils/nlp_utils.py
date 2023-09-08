@@ -68,39 +68,42 @@ def compute_tfidf(corpus):
     
     return tfidf_matrix, vectorizer
 
-def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.75):
+def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.5):
     """
     Filter out common words from a DataFrame based on a pre-trained TF-IDF vectorizer.
     
-    This function uses the TF-IDF scores of words in the provided column to identify
-    and filter out the most common words. The number of words to filter is determined
-    by the provided threshold.
-
+    This function operates in three main steps:
+    1. Filters out words with a length less than 2 from the given column.
+    2. Computes the TF-IDF scores for the filtered words using the provided vectorizer.
+    3. Filters out the most common words based on the computed TF-IDF scores and the provided threshold.
+    
     Parameters:
     - df: pandas DataFrame
-        The DataFrame containing the column to be filtered.
+        The input DataFrame containing the text data to be filtered.
     - column_name: str
-        The name of the column in df that contains the text data to be filtered.
+        The column name in 'df' that contains the text data to be processed.
     - vectorizer: TfidfVectorizer object
-        The pre-trained TF-IDF vectorizer.
-    - threshold: float, default=0.85
-        A float value between 0 and 1. Determines the percentage of the most common words 
-        to be filtered based on their TF-IDF scores. For example, a threshold of 0.85 
-        means the top 85% most common words will be filtered.
+        A pre-trained TF-IDF vectorizer for transforming the text data.
+    - threshold: float, default=0.6
+        Specifies the proportion of the most common words to filter out based on their TF-IDF scores.
+        For example, a threshold of 0.85 means that the top 85% of words, ranked by their TF-IDF scores, will be removed.
 
     Returns:
     - df: pandas DataFrame
-        A DataFrame with the specified column filtered to exclude the most common words 
-        as determined by the threshold.
+        The DataFrame with the specified column filtered to exclude the common words identified by the threshold.
     """
     
+    # Filter out words with length less than 2
+    df[column_name] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if len(word) >= 2]))
+    
+    # Compute the TF-IDF scores for the filtered words
     tfidf_matrix = vectorizer.transform(df[column_name].tolist())
     tfidf_scores = np.sum(tfidf_matrix, axis=0).A1
     sorted_indices = np.argsort(tfidf_scores)[::-1]
     
-    # Calculate the number of words to filter based on the threshold
+    # Filter out common words based on the threshold
+    print(threshold)
     num_words_to_filter = int(len(tfidf_scores) * threshold)
-    
     common_words = set([vectorizer.get_feature_names()[idx] for idx in sorted_indices[:num_words_to_filter]])
     
     df[column_name] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if word not in common_words]))

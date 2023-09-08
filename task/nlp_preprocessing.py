@@ -94,6 +94,7 @@ nuclear_power_df = tokenize_news_content(nuclear_power_df, ws)
 # ractopamine_df = tokenize_news_content(ractopamine_df, ws)
 # alongside_elections_df = tokenize_news_content(alongside_elections_df, ws)
 # algal_reef_df = tokenize_news_content(algal_reef_df, ws)
+print('Before TF-IDF')
 print(nuclear_power_df['tokenized_content'][0])
 print('-'*100)
 
@@ -102,6 +103,7 @@ print('-'*100)
 tfidf_matrix, vectorizer = compute_tfidf(nuclear_power_df['tokenized_content'].tolist())
 
 # Step2. Use the trained vectorizer to filter out common words
+print('After TF-IDF')
 nuclear_power_df = filter_common_words_with_tfidf(nuclear_power_df, 'tokenized_content', vectorizer)
 print(nuclear_power_df['tokenized_content'][0])
 
