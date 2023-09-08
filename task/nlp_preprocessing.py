@@ -15,6 +15,7 @@ from utils.db_utils import close_connection
 from utils.nlp_utils import clean_text
 from utils.nlp_utils import tokenize_news_content
 from utils.nlp_utils import compute_tfidf
+from utils.nlp_utils import filter_common_words_with_tfidf
 from utils.nlp_utils import generate_word_embeddings
 
 conn = create_connection()
@@ -60,12 +61,22 @@ for name, shape in new_shapes.items():
     print(f"{name}: {shape}")
 print('\n')
 
+# Remove stop words
+stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
+
+with open(stop_words_path, 'r', encoding='utf-8') as file:
+    stop_words = [line.strip() for line in file]
+
+nuclear_power_df = clean_text(nuclear_power_df, stop_words) # testing with 100 rows
+
 # Tokenize the data
 ws = WS("./ckiptagger")
-
-nuclear_power_df = tokenize_news_content(nuclear_power_df.head(), ws) # testing with 5 rows
+nuclear_power_df = tokenize_news_content(nuclear_power_df, ws) 
 # ractopamine_df = tokenize_news_content(ractopamine_df, ws)
 # alongside_elections_df = tokenize_news_content(alongside_elections_df, ws)
 # algal_reef_df = tokenize_news_content(algal_reef_df, ws)
 
-print(nuclear_power_df['tokenized_content'][0])
+# TF-IDF
+nuclear_power_df = filter_common_words_with_tfidf(nuclear_power_df, 'tokenized_content')
+
+# Word embeddings
