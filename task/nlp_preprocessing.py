@@ -61,7 +61,7 @@ for name, shape in new_shapes.items():
 print('\n')
 
 # Tokenize the data
-ws = WS("./data")
+ws = WS("./ckiptagger")
 
 nuclear_power_df = tokenize_news_content(nuclear_power_df.head(), ws) # testing with 5 rows
 # ractopamine_df = tokenize_news_content(ractopamine_df, ws)
