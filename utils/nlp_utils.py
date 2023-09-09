@@ -43,8 +43,6 @@ def tokenize_news_content(df, ws):
     - tokenized_df: pandas DataFrame
         A new DataFrame with an added 'tokenized_content' column.
     """
-
-    # Tokenize the 'content' column 
     df.loc[:, 'tokenized_content'] = df['content'].apply(lambda x: ' '.join(ws([x])[0]))
 
     return df
@@ -102,9 +100,9 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.5):
     sorted_indices = np.argsort(tfidf_scores)[::-1]
     
     # Filter out common words based on the threshold
-    print(threshold)
+    print('threshold : '+ str(threshold))
     num_words_to_filter = int(len(tfidf_scores) * threshold)
-    common_words = set([vectorizer.get_feature_names()[idx] for idx in sorted_indices[:num_words_to_filter]])
+    common_words = set([vectorizer.get_feature_names_out()[idx] for idx in sorted_indices[:num_words_to_filter]])
     
     df[column_name] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if word not in common_words]))
     
