@@ -108,7 +108,7 @@ def main():
         # Step1. Train the TF-IDF model
         tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist())
 
-        tsne_visualization(tfidf_matrix, extrace_data_path, df_key)
+        tsne_visualization(tfidf_matrix, df_value, extrace_data_path, df_key)
 
         # Step2. Use the trained vectorizer to filter out common words   
         df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer)

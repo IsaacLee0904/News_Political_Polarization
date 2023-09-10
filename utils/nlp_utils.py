@@ -136,21 +136,31 @@ def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4)
     
     return model
 
-def tsne_visualization(tfidf_matrix, folder, filename):
+def tsne_visualization(tfidf_matrix, df_value, folder, df_key):
     """
-    Visualize the TF-IDF matrix using t-SNE and save the plot to a specified folder.
+    Visualize the TF-IDF matrix using t-SNE and save the plot based on news source.
     
     Parameters:
-    - tfidf_matrix: numpy.ndarray
-        The TF-IDF matrix to be visualized.
+    - tfidf_matrix: array-like, shape (n_samples, n_features)
+        The TF-IDF matrix.
+    - df_value: pandas DataFrame
+        The dataframe containing the source column.
     - folder: str
-        The directory path where the plot should be saved.
-    - filename: str
-        The name for the saved plot.
-    
-    Returns:
-    - None
+        The directory where the plot should be saved.
+    - df_key: str
+        Key to be used for filename prefix.
     """
+    
+    # Define a color map for different sources
+    colormap = {
+        'Udn': 'red',
+        'Chinatimes': 'blue',
+        'Libnews': 'green'
+    }
+    
+    # Get the colors for each sample
+    colors = df_value['source'].map(colormap).tolist()
+
     # Calculate the cosine similarity between words
     similarity_matrix = cosine_similarity(tfidf_matrix)
 
@@ -160,14 +170,19 @@ def tsne_visualization(tfidf_matrix, folder, filename):
 
     # Visualization
     plt.figure(figsize=(10, 10))
-    plt.scatter(low_data[:, 0], low_data[:, 1])
+    for source, color in colormap.items():
+        plt.scatter(low_data[df_value['source'] == source, 0], 
+                    low_data[df_value['source'] == source, 1], 
+                    c=color, label=source)
     plt.title(f't-SNE visualization of {df_key} TF-IDF matrix')
+    plt.legend()
 
     # Save the plot
-    plot_filepath = os.path.join(folder, filename)
-    plt.savefig(plot_filepath)
+    filename = os.path.join(folder, f"{df_key}_plt.png")
+    plt.savefig(filename)
     plt.close()
 
-    print(f"Plot saved to: {plot_filepath}")
+    print(f"Plot saved to: {filename}")
+
 
 
