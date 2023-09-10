@@ -81,31 +81,40 @@ def main():
         print(f"{name}: {shape}")
     print('\n')
 
-    # Remove stop words
-    stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
+    # NLP processing
+    final_data = {
+        'nuclear_power': nuclear_power_df.head(100),
+        'ractopamine': ractopamine_df.head(100),
+        'alongside_elections': alongside_elections_df.head(100),
+        'algal_reef': algal_reef_df.head(100)
+    }
 
-    with open(stop_words_path, 'r', encoding='utf-8') as file:
-        stop_words = [line.strip() for line in file]
+    for df_key, df_value in final_data.items():
+        print(f"Processing {df_key}...")
 
-    nuclear_power_df = clean_text(nuclear_power_df.head(100), stop_words) # testing with 100 rows
+        # Remove stop words
+        stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
 
-    # Tokenize the data
-    ws = WS("./ckiptagger")
-    nuclear_power_df = tokenize_news_content(nuclear_power_df, ws) 
-    # ractopamine_df = tokenize_news_content(ractopamine_df, ws)
-    # alongside_elections_df = tokenize_news_content(alongside_elections_df, ws)
-    # algal_reef_df = tokenize_news_content(algal_reef_df, ws)
+        with open(stop_words_path, 'r', encoding='utf-8') as file:
+            stop_words = [line.strip() for line in file]
 
-    # TF-IDF
-    # Step1. Train the TF-IDF model
-    nuclear_power_tfidf_matrix, nuclear_power_vectorizer = compute_tfidf(nuclear_power_df['tokenized_content'].tolist())
+        df_value = clean_text(df_value, stop_words) 
 
-    tsne_visualization(nuclear_power_tfidf_matrix, extrace_data_path)
+        # Tokenize the data
+        ws = WS("./ckiptagger")
+        df_value = tokenize_news_content(df_value, ws) 
 
-    # Step2. Use the trained vectorizer to filter out common words   
-    nuclear_power_df = filter_common_words_with_tfidf(nuclear_power_df, 'tokenized_content', nuclear_power_vectorizer)
+        # TF-IDF
+        # Step1. Train the TF-IDF model
+        tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist())
 
-    # save_extractdf_to_csv(nuclear_power_df, extrace_data_path)
+        tsne_visualization(tfidf_matrix, extrace_data_path, df_key)
+
+        # Step2. Use the trained vectorizer to filter out common words   
+        df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer)
+
+        # save extract data to csv
+        save_extractdf_to_csv(df_value, extrace_data_path, df_key)
 
 if __name__ == "__main__":
     main()

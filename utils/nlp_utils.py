@@ -136,21 +136,21 @@ def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4)
     
     return model
 
-def tsne_visualization(tfidf_matrix, folder):
+def visualize_and_save_tsne(tfidf_matrix, folder, filename):
     """
     Visualize the TF-IDF matrix using t-SNE and save the plot to a specified folder.
     
     Parameters:
-    - tfidf_matrix: The TF-IDF matrix.
-    - folder: The directory where the plot should be saved.
+    - tfidf_matrix: numpy.ndarray
+        The TF-IDF matrix to be visualized.
+    - folder: str
+        The directory path where the plot should be saved.
+    - filename: str
+        The name for the saved plot.
+    
+    Returns:
+    - None
     """
-    # Extract the prefix from the variable name
-    frame = inspect.currentframe().f_back
-    matrix_name = [name for name, value in frame.f_locals.items() if value is tfidf_matrix][0]
-
-    # Remove "_tfidf_matrix" from the end of matrix if it exists
-    base_name = matrix_name.replace("_tfidf_matrix", "")
-
     # Calculate the cosine similarity between words
     similarity_matrix = cosine_similarity(tfidf_matrix)
 
@@ -161,12 +161,13 @@ def tsne_visualization(tfidf_matrix, folder):
     # Visualization
     plt.figure(figsize=(10, 10))
     plt.scatter(low_data[:, 0], low_data[:, 1])
-    plt.title(f't-SNE visualization of {base_name} TF-IDF matrix')
+    plt.title(f't-SNE visualization of TF-IDF matrix')
 
     # Save the plot
-    filename = os.path.join(folder, f"{base_name}_plt.png")
-    plt.savefig(filename)
+    plot_filepath = os.path.join(folder, filename)
+    plt.savefig(plot_filepath)
     plt.close()
 
-    print(f"Plot saved to: {filename}")
+    print(f"Plot saved to: {plot_filepath}")
+
 

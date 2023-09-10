@@ -59,30 +59,24 @@ def save_csv_to_db(csv_filename, db_path):
 
 import inspect
 
-def save_extractdf_to_csv(df, extract_data_path):
+def save_dataframe_to_csv(df, path, filename):
     """
-    Save the given dataframe to a CSV file based on its variable name.
+    Save the given DataFrame to a specified CSV file.
     
     Parameters:
     - df: pandas DataFrame
         The DataFrame to be saved.
-    - extract_data_path: str
-        The path to the directory where the CSV file should be saved.
+    - path: str
+        The directory path where the CSV file should be saved.
+    - filename: str
+        The name of the CSV file.
     
+    Returns:
+    - None
     """
-    # Get the name of the dataframe based on the caller's variables
-    frame = inspect.currentframe().f_back
-    df_name = [name for name, value in frame.f_locals.items() if value is df][0]
-    
-    # Remove "_df" from the end of df_name if it exists
-    base_name = df_name.rstrip("_df")
-    
-    # Construct the filename based on the modified dataframe name
-    filename = f"extract_{base_name}.csv"
-    full_path = os.path.join(extract_data_path, filename)
-    
-    # Save the dataframe to CSV
-    df.to_csv(full_path, index=False)
+    csv_filepath = os.path.join(path, filename)
+    df.to_csv(csv_filepath, index=False, encoding='utf-8-sig')
+    print(f"DataFrame saved to: {csv_filepath}")
 
 def move_to_backup_folder(file_path, backup_folder):
     
