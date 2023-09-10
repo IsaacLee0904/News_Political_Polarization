@@ -1,12 +1,12 @@
 # import package
 import sys, os, glob, json, re
+import inspect
 import shutil
 import sqlite3
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import time
-
 
 def get_all_json():  
     ''' collect all spider file from tHree news folder '''
@@ -57,8 +57,32 @@ def save_csv_to_db(csv_filename, db_path):
     data.to_sql(table_name, conn, if_exists='append', index=False)
     conn.close()
 
-def save_df_to_csv(df):
-    pass
+import inspect
+
+def save_extractdf_to_csv(df, extract_data_path):
+    """
+    Save the given dataframe to a CSV file based on its variable name.
+    
+    Parameters:
+    - df: pandas DataFrame
+        The DataFrame to be saved.
+    - extract_data_path: str
+        The path to the directory where the CSV file should be saved.
+    
+    """
+    # Get the name of the dataframe based on the caller's variables
+    frame = inspect.currentframe().f_back
+    df_name = [name for name, value in frame.f_locals.items() if value is df][0]
+    
+    # Remove "_df" from the end of df_name if it exists
+    base_name = df_name.rstrip("_df")
+    
+    # Construct the filename based on the modified dataframe name
+    filename = f"extract_{base_name}.csv"
+    full_path = os.path.join(extract_data_path, filename)
+    
+    # Save the dataframe to CSV
+    df.to_csv(full_path, index=False)
 
 def move_to_backup_folder(file_path, backup_folder):
     
@@ -79,7 +103,6 @@ def crawl_news(url):
         return content
     else:
         return 'Content not found'
-
 
 def re_crawl_failed_news(df, delay = 5):
     """ Re-crawl news with missing or very short content """

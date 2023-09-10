@@ -1,20 +1,24 @@
 # import basic packages
-import sys, os, glob, json, re, warnings
+import sys, os, glob, json, re, warnings, inspect
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 # NLP packages
 from ckiptagger import data_utils, WS
 # data_utils.download_data_gdown("./ckiptagger/")  # only run if excute first time 
 import tensorflow as tf
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.manifold import TSNE
 from gensim.models import Word2Vec
 
 # import modules
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 from utils.db_utils import create_connection, get_all_tables_from_db, close_connection
-from utils.nlp_utils import clean_text, tokenize_news_content, compute_tfidf, filter_common_words_with_tfidf, generate_word_embeddings
+from utils.etl_utils import save_extractdf_to_csv
+from utils.nlp_utils import clean_text, tokenize_news_content, compute_tfidf, filter_common_words_with_tfidf, generate_word_embeddings, tsne_visualization
 
 # Configuration settings
 warnings.filterwarnings("ignore")
@@ -30,6 +34,10 @@ if gpus:
         print(e)
 
 def main():
+
+    ''' setting configure '''
+    extrace_data_path = os.path.join(project_root, 'data', 'extract_data')
+
     conn = create_connection()
     all_data = get_all_tables_from_db(conn)
 
@@ -87,20 +95,17 @@ def main():
     # ractopamine_df = tokenize_news_content(ractopamine_df, ws)
     # alongside_elections_df = tokenize_news_content(alongside_elections_df, ws)
     # algal_reef_df = tokenize_news_content(algal_reef_df, ws)
-    print('[Before TF-IDF]')
-    print(nuclear_power_df['tokenized_content'][0])
-    print('-'*144)
 
     # TF-IDF
     # Step1. Train the TF-IDF model
-    tfidf_matrix, vectorizer = compute_tfidf(nuclear_power_df['tokenized_content'].tolist())
+    nuclear_power_tfidf_matrix, nuclear_power_vectorizer = compute_tfidf(nuclear_power_df['tokenized_content'].tolist())
 
-    # Step2. Use the trained vectorizer to filter out common words
-    print('[After TF-IDF]')
-    nuclear_power_df = filter_common_words_with_tfidf(nuclear_power_df, 'tokenized_content', vectorizer)
-    print(nuclear_power_df['tokenized_content'][0])
+    tsne_visualization(nuclear_power_tfidf_matrix, extrace_data_path)
 
-    # Word embeddings
+    # Step2. Use the trained vectorizer to filter out common words   
+    nuclear_power_df = filter_common_words_with_tfidf(nuclear_power_df, 'tokenized_content', nuclear_power_vectorizer)
+
+    # save_extractdf_to_csv(nuclear_power_df, extrace_data_path)
 
 if __name__ == "__main__":
     main()

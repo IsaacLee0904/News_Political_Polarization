@@ -1,8 +1,12 @@
-import re
+import re, os
+import inspect
 import numpy as np
+import matplotlib.pyplot as plt
 import tensorflow as tf
 from ckiptagger import data_utils, WS
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.manifold import TSNE
 from gensim.models import Word2Vec
 
 def clean_text(df, stop_words):
@@ -100,7 +104,7 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.5):
     sorted_indices = np.argsort(tfidf_scores)[::-1]
     
     # Filter out common words based on the threshold
-    print('threshold : '+ str(threshold))
+    print('TF-IDF threshold : '+ str(threshold))
     num_words_to_filter = int(len(tfidf_scores) * threshold)
     common_words = set([vectorizer.get_feature_names_out()[idx] for idx in sorted_indices[:num_words_to_filter]])
     
@@ -131,3 +135,38 @@ def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4)
     model = Word2Vec(corpus, size=size, window=window, min_count=min_count, workers=workers)
     
     return model
+
+def tsne_visualization(tfidf_matrix, folder):
+    """
+    Visualize the TF-IDF matrix using t-SNE and save the plot to a specified folder.
+    
+    Parameters:
+    - tfidf_matrix: The TF-IDF matrix.
+    - folder: The directory where the plot should be saved.
+    """
+    # Extract the prefix from the variable name
+    frame = inspect.currentframe().f_back
+    matrix_name = [name for name, value in frame.f_locals.items() if value is tfidf_matrix][0]
+
+    # Remove "_tfidf_matrix" from the end of matrix if it exists
+    base_name = matrix_name.replace("_tfidf_matrix", "")
+
+    # Calculate the cosine similarity between words
+    similarity_matrix = cosine_similarity(tfidf_matrix)
+
+    # Dimensionality reduction with t-SNE
+    tsne_model = TSNE(n_components=2, random_state=0, metric='precomputed', init='random')
+    low_data = tsne_model.fit_transform(similarity_matrix)
+
+    # Visualization
+    plt.figure(figsize=(10, 10))
+    plt.scatter(low_data[:, 0], low_data[:, 1])
+    plt.title(f't-SNE visualization of {base_name} TF-IDF matrix')
+
+    # Save the plot
+    filename = os.path.join(folder, f"{base_name}_plt.png")
+    plt.savefig(filename)
+    plt.close()
+
+    print(f"Plot saved to: {filename}")
+

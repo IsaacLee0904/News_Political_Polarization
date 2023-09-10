@@ -18,6 +18,7 @@ RUN apt-get update && \
     pip install selenium==3.141.0 && \
     pip install pandas && \
     pip install numpy && \
+    pip install matplotlib && \
     pip install scikit-learn && \
     pip install gensim==4.0.1 && \
     pip install python-Levenshtein && \
