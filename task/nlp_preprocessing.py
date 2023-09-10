@@ -83,10 +83,10 @@ def main():
 
     # NLP processing
     final_data = {
-        'nuclear_power': nuclear_power_df.head(100),
-        'ractopamine': ractopamine_df.head(100),
-        'alongside_elections': alongside_elections_df.head(100),
-        'algal_reef': algal_reef_df.head(100)
+        'nuclear_power': nuclear_power_df,
+        'ractopamine': ractopamine_df,
+        'alongside_elections': alongside_elections_df,
+        'algal_reef': algal_reef_df
     }
 
     for df_key, df_value in final_data.items():

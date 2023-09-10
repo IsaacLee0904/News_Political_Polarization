@@ -136,7 +136,7 @@ def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4)
     
     return model
 
-def visualize_and_save_tsne(tfidf_matrix, folder, filename):
+def tsne_visualization(tfidf_matrix, folder, filename):
     """
     Visualize the TF-IDF matrix using t-SNE and save the plot to a specified folder.
     
@@ -161,7 +161,7 @@ def visualize_and_save_tsne(tfidf_matrix, folder, filename):
     # Visualization
     plt.figure(figsize=(10, 10))
     plt.scatter(low_data[:, 0], low_data[:, 1])
-    plt.title(f't-SNE visualization of TF-IDF matrix')
+    plt.title(f't-SNE visualization of {df_key} TF-IDF matrix')
 
     # Save the plot
     plot_filepath = os.path.join(folder, filename)

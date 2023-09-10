@@ -59,7 +59,7 @@ def save_csv_to_db(csv_filename, db_path):
 
 import inspect
 
-def save_dataframe_to_csv(df, path, filename):
+def save_extractdf_to_csv(df, path, filename):
     """
     Save the given DataFrame to a specified CSV file.
     
