@@ -69,14 +69,19 @@ def save_extractdf_to_csv(df, path, filename):
     - path: str
         The directory path where the CSV file should be saved.
     - filename: str
-        The name of the CSV file.
+        The base name of the CSV file without the extension.
     
     Returns:
     - None
     """
+    # Ensure the filename ends with .csv
+    if not filename.endswith('.csv'):
+        filename += '.csv'
+    
     csv_filepath = os.path.join(path, filename)
     df.to_csv(csv_filepath, index=False, encoding='utf-8-sig')
     print(f"DataFrame saved to: {csv_filepath}")
+
 
 def move_to_backup_folder(file_path, backup_folder):
     

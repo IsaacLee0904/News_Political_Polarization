@@ -70,7 +70,7 @@ def compute_tfidf(corpus):
     
     return tfidf_matrix, vectorizer
 
-def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.5):
+def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.7):
     """
     Filter out common words from a DataFrame based on a pre-trained TF-IDF vectorizer.
     
