@@ -112,6 +112,12 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.6):
     
     return df
 
+def word_frequency_calculation(df):
+    
+    word_frequencies = df['tokenized_content'].str.split(expand=True).stack().value_counts()
+
+    return word_frequencies
+
 def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4):
     """
     Generate Word2Vec embeddings for a given corpus.

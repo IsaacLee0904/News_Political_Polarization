@@ -11,7 +11,6 @@ import tensorflow as tf
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.manifold import TSNE
-from gensim.models import Word2Vec
 
 # import modules
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

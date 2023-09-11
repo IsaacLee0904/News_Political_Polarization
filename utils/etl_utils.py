@@ -21,6 +21,38 @@ def get_all_json():
 
     return json_list
 
+import pandas as pd
+import os
+
+def load_csvs_from_directory(directory_path):
+    """
+    Load all CSV files from the specified directory into a dictionary of DataFrames.
+    
+    Parameters:
+    - directory_path: str
+        The path to the directory containing the CSV files.
+        
+    Returns:
+    - dict of pandas DataFrame
+        A dictionary where the keys are the filenames (without .csv) 
+        and the values are the corresponding DataFrames.
+
+    Example usage:
+    - dfs = load_csvs_from_directory(directory_path)
+    """
+    
+    dataframes = {}
+    for filename in os.listdir(directory_path):
+        if filename.endswith(".csv"):
+            # Remove the .csv extension from the filename to use as the key
+            key = filename[:-4]
+            filepath = os.path.join(directory_path, filename)
+            
+            # Read the CSV file into a DataFrame and store in the dictionary
+            dataframes[key] = pd.read_csv(filepath)
+    
+    return dataframes
+
 def save_csv_to_db(csv_filename, db_path):
     """
     Save data from CSV to SQLite table based on the filename format.
