@@ -18,7 +18,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 from utils.db_utils import create_connection, get_all_tables_from_db, close_connection
 from utils.etl_utils import save_extractdf_to_csv
-from utils.nlp_utils import clean_text, tokenize_news_content, compute_tfidf, filter_common_words_with_tfidf, generate_word_embeddings, tsne_visualization
+from utils.nlp_utils import clean_text, tokenize_news_content, compute_tfidf, filter_common_words_with_tfidf, tsne_visualization
 
 # Configuration settings
 warnings.filterwarnings("ignore")
