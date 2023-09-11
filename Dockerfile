@@ -23,6 +23,7 @@ RUN apt-get update && \
     pip install gensim==4.0.1 && \
     pip install python-Levenshtein && \
     pip install urllib3==1.26.6 && \
+    pip install networkx && \
     pip install chardet==4.0.0"
 
 CMD ["python", "main.py"]
