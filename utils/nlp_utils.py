@@ -27,7 +27,7 @@ def clean_text(df, stop_words):
     
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(punctuations, '', x))
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'[a-zA-Z]+', '', x))  # Remove English words
-    df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'(?<![^\x00-\x7F])\d+(?![^\x00-\x7F])', '', x))  # Remove standalone numbers but not numbers adjacent to Chinese characters
+    # df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'(?<![^\x00-\x7F])\d+(?![^\x00-\x7F])', '', x))  # Remove standalone numbers but not numbers adjacent to Chinese characters
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'[^\w\s]', '', x.lower()))
     df.loc[:, 'content'] = df['content'].apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
     
@@ -70,7 +70,7 @@ def compute_tfidf(corpus):
     
     return tfidf_matrix, vectorizer
 
-def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.6):
+def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.3):
     """
     Filter out common words from a DataFrame based on a pre-trained TF-IDF vectorizer.
     

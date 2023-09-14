@@ -1,6 +1,6 @@
 # import basic packages
 import sys, os, glob, json, re, warnings, inspect
-# import pandas as pd
+import pandas as pd
 import numpy as np
 
 # import modules
@@ -18,11 +18,13 @@ def compute_word_frequencies(data):
 
 def main():
 
-    data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_0.5')
+    data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_0.6')
 
     data_dict = load_csvs_from_directory(data_path)
     word_frequencies = compute_word_frequencies(data_dict)
-
+    word_frequencies_df = pd.DataFrame.from_dict(word_frequencies['nuclear_power'])
+    word_frequencies_df.to_csv(r'fre.csv')
+    
 
 if __name__ == "__main__":
     main()
