@@ -4,20 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from ckiptagger import data_utils, WS
+import jieba
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.manifold import TSNE
 from gensim.models import Word2Vec
 
-def clean_text(df, stop_words):
+def clean_text(df):
     """
     Clean the 'content' column of a DataFrame and remove stop words.
 
     Parameters:
     - df: pandas DataFrame
         The DataFrame containing the 'content' column to be cleaned.
-    - stop_words: list
-        List of words to be removed from the content.
 
     Returns:
     - df: pandas DataFrame
@@ -29,11 +28,10 @@ def clean_text(df, stop_words):
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'[a-zA-Z]+', '', x))  # Remove English words
     # df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'(?<![^\x00-\x7F])\d+(?![^\x00-\x7F])', '', x))  # Remove standalone numbers but not numbers adjacent to Chinese characters
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'[^\w\s]', '', x.lower()))
-    df.loc[:, 'content'] = df['content'].apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
     
     return df
 
-def tokenize_news_content(df, ws):
+def tokenize_news_content_with_ckiptagger(df, ws):
     """
     Tokenize the 'content' column of a DataFrame using CKIPtagger
 
@@ -49,6 +47,45 @@ def tokenize_news_content(df, ws):
     """
     df.loc[:, 'tokenized_content'] = df['content'].apply(lambda x: ' '.join(ws([x])[0]))
 
+    return df
+
+def tokenize_news_content_with_jieba(df):
+    """
+    Tokenize the 'content' column of a DataFrame using jieba.
+
+    Parameters:
+    - df: pandas DataFrame
+        The DataFrame containing the 'content' column to be tokenized.
+
+    Returns:
+    - tokenized_df: pandas DataFrame
+        A new DataFrame with an added 'tokenized_content' column.
+    """
+    
+    jieba.initialize()  
+
+    df.loc[:, 'tokenized_content'] = df['content'].apply(lambda x: ' '.join(jieba.cut(x, cut_all=False)))
+
+    return df
+
+def clean_tokens(df, stop_words):
+    """
+    Clean the 'tokenized_content' column of a DataFrame and remove stop words.
+
+    Parameters:
+    - df: pandas DataFrame
+        The DataFrame containing the 'tokenized_content' column to be cleaned.
+    - stop_words: list
+        List of words to be removed from the content.
+
+    Returns:
+    - df: pandas DataFrame
+        A DataFrame with cleaned 'tokenized_content'.
+    """
+    punctuations = r'[&#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation 【】"}``&#8203;"}``&#8203;"}``&#8203;"}``&#8203;"}``&#8203;《》「」]'
+    
+    df.loc[:, 'tokenized_content'] = df['tokenized_content'].apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
+    
     return df
 
 def compute_tfidf(corpus):
@@ -70,7 +107,7 @@ def compute_tfidf(corpus):
     
     return tfidf_matrix, vectorizer
 
-def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.3):
+def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.5):
     """
     Filter out common words from a DataFrame based on a pre-trained TF-IDF vectorizer.
     
@@ -96,10 +133,10 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.3):
     """
     
     # Filter out words with length less than 2
-    df[column_name] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if len(word) >= 2]))
+    df['tokenized_content_TF-IDF'] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if len(word) >= 2]))
     
     # Compute the TF-IDF scores for the filtered words
-    tfidf_matrix = vectorizer.transform(df[column_name].tolist())
+    tfidf_matrix = vectorizer.transform(df['tokenized_content_TF-IDF'].tolist())
     tfidf_scores = np.sum(tfidf_matrix, axis=0).A1
     sorted_indices = np.argsort(tfidf_scores)[::-1]
     
@@ -108,7 +145,7 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.3):
     num_words_to_filter = int(len(tfidf_scores) * threshold)
     common_words = set([vectorizer.get_feature_names_out()[idx] for idx in sorted_indices[:num_words_to_filter]])
     
-    df[column_name] = df[column_name].apply(lambda x: ' '.join([word for word in x.split() if word not in common_words]))
+    df['tokenized_content_TF-IDF'] = df['tokenized_content_TF-IDF'].apply(lambda x: ' '.join([word for word in x.split() if word not in common_words]))
     
     return df
 
