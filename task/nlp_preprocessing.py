@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # NLP packages
-from ckiptagger import data_utils, WS
+from ckiptagger import data_utils, WS, POS
 # data_utils.download_data_gdown("./ckiptagger/")  # only run if excute first time 
 import jieba
 import tensorflow as tf
@@ -18,7 +18,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 from utils.db_utils import create_connection, get_all_tables_from_db, close_connection
 from utils.etl_utils import save_extractdf_to_csv
-from utils.nlp_utils import clean_text, tokenize_news_content_with_ckiptagger, tokenize_news_content_with_jieba, clean_tokens, compute_tfidf, filter_common_words_with_tfidf, tsne_visualization
+from utils.nlp_utils import clean_text, tokenize_news_content_with_ckiptagger, tokenize_news_content_with_jieba, extract_content_words, clean_tokens, compute_tfidf, filter_common_words_with_tfidf, tsne_visualization
 
 # Configuration settings
 warnings.filterwarnings("ignore")
@@ -36,7 +36,8 @@ if gpus:
 def main():
 
     ''' setting configure '''
-    extrace_data_path = os.path.join(project_root, 'data', 'extract_data')
+    threshold_value = 0.7
+    extract_data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_{}'.format(threshold_value))
 
     conn = create_connection()
     all_data = get_all_tables_from_db(conn)
@@ -84,9 +85,9 @@ def main():
     # NLP processing
     final_data = {
         'nuclear_power': nuclear_power_df.head(100),
-        'ractopamine': ractopamine_df.head(100),
-        'alongside_elections': alongside_elections_df.head(100),
-        'algal_reef': algal_reef_df.head(100)
+        # 'ractopamine': ractopamine_df.head(100),
+        # 'alongside_elections': alongside_elections_df.head(100),
+        # 'algal_reef': algal_reef_df.head(100)
     }
 
     for df_key, df_value in final_data.items():
@@ -97,7 +98,9 @@ def main():
 
         # Tokenize the data
         ws = WS("./ckiptagger")
-        df_value = tokenize_news_content_with_ckiptagger(df_value, ws)
+        pos = POS("./ckiptagger")
+        # df_value = tokenize_news_content_with_ckiptagger(df_value, ws)
+        df_value = extract_content_words(df_value, ws, pos)
 
         # Remove stop words
         stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
@@ -109,15 +112,15 @@ def main():
 
         # TF-IDF
         # Step1. Train the TF-IDF model
-        tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist())
+        # tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist())
 
-        tsne_visualization(tfidf_matrix, df_value, extrace_data_path, df_key)
+        # tsne_visualization(tfidf_matrix, df_value, extract_data_path, df_key)
 
         # Step2. Use the trained vectorizer to filter out common words   
-        df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer)
+        # df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value)
 
         # save extract data to csv
-        save_extractdf_to_csv(df_value, extrace_data_path, df_key)
+        save_extractdf_to_csv(df_value, extract_data_path, df_key)
 
 if __name__ == "__main__":
     main()

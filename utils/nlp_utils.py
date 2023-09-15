@@ -3,7 +3,7 @@ import inspect
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from ckiptagger import data_utils, WS
+from ckiptagger import data_utils, WS, POS
 import jieba
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -26,7 +26,6 @@ def clean_text(df):
     
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(punctuations, '', x))
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'[a-zA-Z]+', '', x))  # Remove English words
-    # df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'(?<![^\x00-\x7F])\d+(?![^\x00-\x7F])', '', x))  # Remove standalone numbers but not numbers adjacent to Chinese characters
     df.loc[:, 'content'] = df['content'].apply(lambda x: re.sub(r'[^\w\s]', '', x.lower()))
     
     return df
@@ -68,6 +67,66 @@ def tokenize_news_content_with_jieba(df):
 
     return df
 
+def extract_important_terms(text, ws, pos):
+    """
+    Extract important terms from the text using ckiptagger.
+    
+    Parameters:
+    - text: str
+        The input text to be processed.
+    - ws: CKIPtagger WS object
+        The CKIPtagger WS object for word segmentation.
+    - pos: CKIPtagger POS object
+        The CKIPtagger POS object for part-of-speech tagging.
+        
+    Returns:
+    - important_terms: list of str
+        A list containing the extracted important terms.
+    """
+    
+    # Perform word segmentation and POS tagging
+    word_sentence_list = ws([text])
+    pos_sentence_list = pos(word_sentence_list)
+    
+    # Extract words based on their POS tags
+    important_terms = []
+    for words, tags in zip(word_sentence_list, pos_sentence_list):
+        for word, tag in zip(words, tags):
+            if tag in ["N", "Nb", "V", "A"]:
+                important_terms.append(word)
+                
+    return important_terms
+
+def extract_content_words(df, ws, pos):
+    """
+    Extract important terms from the 'content' column of a DataFrame using ckiptagger.
+    
+    Parameters:
+    - df: pandas DataFrame
+        The DataFrame containing the 'content' column to be processed.
+    - ws: CKIPtagger WS object
+        The CKIPtagger WS object for word segmentation.
+    - pos: CKIPtagger POS object
+        The CKIPtagger POS object for part-of-speech tagging.
+        
+    Returns:
+    - df: pandas DataFrame
+        The DataFrame with an added 'tokenized_content' column containing the extracted important terms.
+    """
+    
+    def get_important_terms(text):
+        # Perform word segmentation and POS tagging
+        word_list = ws([text])[0]
+        pos_list = pos([word_list])[0]
+        
+        # Extract words based on their POS tags
+        important_terms = [word for word, tag in zip(word_list, pos_list) if tag in ["N", "Nb", "V", "A"]]
+        
+        return ' '.join(important_terms)
+    
+    df['tokenized_content'] = df['content'].apply(get_important_terms)
+    return df
+
 def clean_tokens(df, stop_words):
     """
     Clean the 'tokenized_content' column of a DataFrame and remove stop words.
@@ -83,7 +142,7 @@ def clean_tokens(df, stop_words):
         A DataFrame with cleaned 'tokenized_content'.
     """
     punctuations = r'[&#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation &#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation 【】"}``&#8203;"}``&#8203;"}``&#8203;"}``&#8203;"}``&#8203;《》「」]'
-    
+    df.loc[:, 'tokenized_content'] = df['tokenized_content'].apply(lambda x: re.sub(r'\b\d+\b', '', x))  # Remove standalone numbers 
     df.loc[:, 'tokenized_content'] = df['tokenized_content'].apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
     
     return df
@@ -107,7 +166,7 @@ def compute_tfidf(corpus):
     
     return tfidf_matrix, vectorizer
 
-def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold=0.5):
+def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold):
     """
     Filter out common words from a DataFrame based on a pre-trained TF-IDF vectorizer.
     
