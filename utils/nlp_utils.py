@@ -114,17 +114,7 @@ def extract_content_words(df, ws, pos):
         The DataFrame with an added 'tokenized_content' column containing the extracted important terms.
     """
     
-    def get_important_terms(text):
-        # Perform word segmentation and POS tagging
-        word_list = ws([text])[0]
-        pos_list = pos([word_list])[0]
-        
-        # Extract words based on their POS tags
-        important_terms = [word for word, tag in zip(word_list, pos_list) if tag in ["N", "Nb", "V", "A"]]
-        
-        return ' '.join(important_terms)
-    
-    df['tokenized_content'] = df['content'].apply(get_important_terms)
+    df['tokenized_content'] = df['content'].apply(lambda x: ' '.join(extract_important_terms(x, ws, pos)))
     return df
 
 def clean_tokens(df, stop_words):
