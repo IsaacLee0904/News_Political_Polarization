@@ -3,8 +3,7 @@ import inspect
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from ckiptagger import data_utils, WS, POS
-import jieba
+from ckip_transformers.nlp import CkipWordSegmenter, CkipPosTagger
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.manifold import TSNE
@@ -30,15 +29,15 @@ def clean_text(df):
     
     return df
 
-def tokenize_news_content_with_ckiptagger(df, ws):
+def tokenize_news_content_with_ckiptransformers(df, ws):
     """
-    Tokenize the 'content' column of a DataFrame using CKIPtagger
+    Tokenize the 'content' column of a DataFrame using CKIP_transformers
 
     Parameters:
     - df: pandas DataFrame
         The DataFrame containing the 'content' column to be tokenized.
-    - ws: CKIPtagger WS object
-        The CKIPtagger WS object for tokenization.
+    - ws: CKIP_transformers WS object
+        The CKIP_transformers WS object for tokenization.
 
     Returns:
     - tokenized_df: pandas DataFrame
@@ -48,36 +47,17 @@ def tokenize_news_content_with_ckiptagger(df, ws):
 
     return df
 
-def tokenize_news_content_with_jieba(df):
-    """
-    Tokenize the 'content' column of a DataFrame using jieba.
-
-    Parameters:
-    - df: pandas DataFrame
-        The DataFrame containing the 'content' column to be tokenized.
-
-    Returns:
-    - tokenized_df: pandas DataFrame
-        A new DataFrame with an added 'tokenized_content' column.
-    """
-    
-    jieba.initialize()  
-
-    df.loc[:, 'tokenized_content'] = df['content'].apply(lambda x: ' '.join(jieba.cut(x, cut_all=False)))
-
-    return df
-
 def extract_important_terms(text, ws, pos):
     """
-    Extract important terms from the text using ckiptagger.
+    Extract important terms from the text using CKIP_transformers.
     
     Parameters:
     - text: str
         The input text to be processed.
-    - ws: CKIPtagger WS object
-        The CKIPtagger WS object for word segmentation.
-    - pos: CKIPtagger POS object
-        The CKIPtagger POS object for part-of-speech tagging.
+    - ws: CKIP_transformers WS object
+        The CKIP_transformers WS object for word segmentation.
+    - pos: CKIP_transformers POS object
+        The CKIP_transformers POS object for part-of-speech tagging.
         
     Returns:
     - important_terms: list of str
@@ -99,15 +79,15 @@ def extract_important_terms(text, ws, pos):
 
 def extract_content_words(df, ws, pos):
     """
-    Extract important terms from the 'content' column of a DataFrame using ckiptagger.
+    Extract important terms from the 'content' column of a DataFrame using CKIP_transformers.
     
     Parameters:
     - df: pandas DataFrame
         The DataFrame containing the 'content' column to be processed.
-    - ws: CKIPtagger WS object
-        The CKIPtagger WS object for word segmentation.
-    - pos: CKIPtagger POS object
-        The CKIPtagger POS object for part-of-speech tagging.
+    - ws: CKIP_transformers WS object
+        The CKIP_transformers WS object for word segmentation.
+    - pos: CKIP_transformers POS object
+        The CKIP_transformers POS object for part-of-speech tagging.
         
     Returns:
     - df: pandas DataFrame

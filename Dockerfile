@@ -12,8 +12,7 @@ RUN apt-get update && \
     pip install --upgrade pip && \
     pip install tensorflow==2.12.0 && \
     pip install ckiptagger[tf,gdown]==0.2.1 && \
-    pip install jieba && \
-    pip install ArticutAPI && \
+    pip install ckip-transformers && \
     pip install bs4==0.0.1 && \
     pip install requests==2.25.1 && \
     pip install scrapy==2.5.0 && \
