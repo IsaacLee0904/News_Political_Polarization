@@ -208,6 +208,16 @@ def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4)
     
     return model
 
+def filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words):
+    """
+    Filter out columns from the tfidf_matrix corresponding to common_words.
+    """
+    # Get the indices of the common words
+    indices = [vectorizer.vocabulary_[word] for word in common_words if word in vectorizer.vocabulary_]
+    
+    # Remove the columns corresponding to the common words
+    return tfidf_matrix[:, [i for i in range(tfidf_matrix.shape[1]) if i not in indices]]
+
 def tsne_visualization(tfidf_matrix, df_value, folder, df_key):
     """
     Visualize the TF-IDF matrix using t-SNE and save the plot based on news source.
@@ -237,8 +247,8 @@ def tsne_visualization(tfidf_matrix, df_value, folder, df_key):
     similarity_matrix = cosine_similarity(tfidf_matrix)
 
     # Dimensionality reduction with t-SNE
-    tsne_model = TSNE(n_components=2, random_state=0, metric='precomputed', init='random')
-    low_data = tsne_model.fit_transform(similarity_matrix)
+    tsne_model = TSNE(n_components=2, random_state=0, init='random')
+    low_data = tsne_model.fit_transform(tfidf_matrix.toarray())
 
     # Visualization
     plt.figure(figsize=(10, 10))
