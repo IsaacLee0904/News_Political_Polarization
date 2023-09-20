@@ -15,6 +15,7 @@ from sklearn.manifold import TSNE
 # import modules
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
+from utils.log_utils import set_logger
 from utils.db_utils import create_connection, get_all_tables_from_db, close_connection
 from utils.etl_utils import save_extractdf_to_csv
 from utils.nlp_utils import (
@@ -25,25 +26,18 @@ from utils.nlp_utils import (
     compute_tfidf, 
     filter_common_words_with_tfidf, 
     filter_tfidf_matrix, 
-    tsne_visualization
+    tsne_visualization,
+    save_plot
 )
 
 # Configuration settings
 warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# Configure TensorFlow GPU settings
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except RuntimeError as e:
-        print(e)
-
 def main():
 
     ''' setting configure '''
+    logger = set_logger()
     threshold_value = 0.7
     extract_data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_{}'.format(threshold_value))
 
@@ -102,12 +96,12 @@ def main():
         print(f"Processing {df_key}...")
 
         # Content cleaning 
-        df_value = clean_text(df_value)
+        df_value = clean_text(df_value, logger)
 
         # Tokenize the data
         ws = CkipWordSegmenter(model="bert-base")
         pos = CkipPosTagger(model="bert-base")
-        df_value = tokenize_news_content_with_ckiptransformers(df_value, ws)
+        df_value = tokenize_news_content_with_ckiptransformers(df_value, ws, logger)  
 
         # Remove stop words
         stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
@@ -115,22 +109,23 @@ def main():
         with open(stop_words_path, 'r', encoding='utf-8') as file:
             stop_words = [line.strip() for line in file]
 
-        df_value = clean_tokens(df_value, stop_words) 
+        df_value = clean_tokens(df_value, stop_words, logger) 
 
         # TF-IDF
         # Step1. Train the TF-IDF model
-        tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist())   
+        tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist(), logger)   
 
         # Step2. Use the trained vectorizer to filter out common words   
-        df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value)
+        df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value, logger)
         common_words = set(df_value['tokenized_content_TF-IDF'].sum().split())
 
         # 3. Filter the TF-IDF matrix using the list of common words.
-        filtered_tfidf_matrix = filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words)
-        tsne_visualization(filtered_tfidf_matrix, df_value, extract_data_path, df_key)
+        filtered_tfidf_matrix = filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger)
+        tsne_pic = tsne_visualization(filtered_tfidf_matrix, df_value)
+        save_plot(tsne_pic, extract_data_path, df_key)
 
         # save extract data to csv
-        save_extractdf_to_csv(df_value, extract_data_path, df_key)
+        save_extractdf_to_csv(df_value, extract_data_path, df_key, logger)
 
 if __name__ == "__main__":
     main()
