@@ -38,10 +38,14 @@ def main():
 
     ''' setting configure '''
     logger = set_logger()
+    logger.info("Starting NLP preprocessing...")
+
     threshold_value = 0.7
     extract_data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_{}'.format(threshold_value))
 
+    logger.info("Connecting to the database...")
     conn = create_connection()
+    logger.info("Fetching all tables from the database...")
     all_data = get_all_tables_from_db(conn)
 
     nuclear_power_df = all_data['nuclear_power'] # 核四
@@ -94,6 +98,7 @@ def main():
 
     for df_key, df_value in final_data.items():
         print(f"Processing {df_key}...")
+        logger.info(f"Processing {df_key}...")
 
         # Content cleaning 
         df_value = clean_text(df_value, logger)
@@ -125,7 +130,11 @@ def main():
         save_plot(tsne_pic, extract_data_path, df_key)
 
         # save extract data to csv
+        logger.info(f"Saving extracted data for {df_key} to CSV...")
         save_extractdf_to_csv(df_value, extract_data_path, df_key, logger)
+        logger.info(f"Data for {df_key} saved successfully.")
+        
+    logger.info("NLP preprocessing completed.")
 
 if __name__ == "__main__":
     main()
