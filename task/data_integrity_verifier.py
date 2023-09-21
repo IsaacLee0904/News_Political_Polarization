@@ -8,9 +8,19 @@ from utils.db_utils import create_connection
 from utils.db_utils import get_all_tables_from_db
 from utils.db_utils import close_connection
 from utils.db_query import filter_failed_content
+from utils.log_utils import set_logger
 
+logger = set_logger()
+
+logger.info("Script started...")
+
+logger.info("Connecting to the database...")
 conn = create_connection()
+logger.info("Connected to the database.")
+
+logger.info("Fetching all tables from the database...")
 all_data = get_all_tables_from_db(conn)
+logger.info(f"Fetched {len(all_data)} tables from the database.")
 
 table_names = ['nuclear_power', 'ractopamine', 'alongside_elections', 'algal_reef']
 sources = ['Chinatimes', 'Udn', 'Libnews']
@@ -22,6 +32,7 @@ dfs = {}
 results = []
 
 for table in table_names:
+    logger.info(f"Filtering failed content for table: {table}...")
     data = filter_failed_content(conn, table)
     for source in sources:
         key_name = f"{source.lower()}_{table}"
@@ -39,31 +50,4 @@ print(f"{header[0].ljust(30)} | {header[1].rjust(15)}")
 print("-" * 48)
 for row in results:
     print(f"{row[0].ljust(30)} | {str(row[1]).rjust(15)}")
-
-
-
-# ---------------- nuclear_power -------------------
-nuclear_power_data = filter_failed_content(conn, 'nuclear_power')
-chinatimes_nuclear_power = nuclear_power_data[nuclear_power_data['source'] == 'Chinatimes']
-udn_nuclear_power = nuclear_power_data[nuclear_power_data['source'] == 'Udn']
-libnews_nuclear_power = nuclear_power_data[nuclear_power_data['source'] == 'Libnews']
-
-# ---------------- ractopamine -------------------
-ractopamine_data = filter_failed_content(conn, 'ractopamine')
-chinatimes_ractopamine = ractopamine_data[ractopamine_data['source'] == 'Chinatimes']
-udn_ractopamine = ractopamine_data[ractopamine_data['source'] == 'Udn']
-libnews_ractopamine = ractopamine_data[ractopamine_data['source'] == 'Libnews']
-
-# ---------------- ractopamine -------------------
-alongside_elections_data = filter_failed_content(conn, 'alongside_elections')
-chinatimes_alongside_elections = alongside_elections_data[alongside_elections_data['source'] == 'Chinatimes']
-udn_alongside_elections = alongside_elections_data[alongside_elections_data['source'] == 'Udn']
-libnews_alongside_elections = alongside_elections_data[alongside_elections_data['source'] == 'Libnews']
-
-# ---------------- algal_reef -------------------
-algal_reef_data = filter_failed_content(conn, 'algal_reef')
-chinatimes_algal_reef = algal_reef_data[algal_reef_data['source'] == 'Chinatimes']
-udn_algal_reef = algal_reef_data[algal_reef_data['source'] == 'Udn']
-libnews_algal_reef = algal_reef_data[algal_reef_data['source'] == 'Libnews']
-
-print(udn_nuclear_power['url'][0])
+    logger.info(f"{row[0].ljust(30)} | {str(row[1]).rjust(15)}")
