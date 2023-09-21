@@ -33,6 +33,51 @@ def clean_text(df, logger):
     
     return df
 
+def tokenize_news_content_with_ckiptagger(df, ws, logger):
+    """
+    Tokenize the 'content' column of a DataFrame using CKIPtagger
+
+    Parameters:
+    - df: pandas DataFrame
+        The DataFrame containing the 'content' column to be tokenized.
+    - ws: CKIPtagger WS object
+        The CKIPtagger WS object for tokenization.
+
+    Returns:
+    - tokenized_df: pandas DataFrame
+        A new DataFrame with an added 'tokenized_content' column.
+    """
+    try:
+        logger.info("Tokenize news...")
+        df.loc[:, 'tokenized_content'] = df['content'].apply(lambda x: ' '.join(ws([x])[0]))
+    except Exception as e:
+        logger.error(f"Error in tokenize_news_content_with_ckiptagger: {e}")
+
+    return df
+
+def tokenize_news_content_with_jieba(df, logger):
+    """
+    Tokenize the 'content' column of a DataFrame using jieba.
+
+    Parameters:
+    - df: pandas DataFrame
+        The DataFrame containing the 'content' column to be tokenized.
+
+    Returns:
+    - tokenized_df: pandas DataFrame
+        A new DataFrame with an added 'tokenized_content' column.
+    """
+    
+    jieba.initialize()  
+
+    try:
+        logger.info("Tokenize news...")
+        df.loc[:, 'tokenized_content'] = df['content'].apply(lambda x: ' '.join(jieba.cut(x, cut_all=False)))
+    except Exception as e:
+        logger.error(f"Error in tokenize_news_content_with_jieba: {e}")
+
+    return df
+
 def tokenize_news_content_with_ckiptransformers(df, ws, logger):
     """
     Tokenize the 'content' column of a DataFrame using CKIP_transformers

@@ -103,10 +103,10 @@ def main():
         df_value = clean_text(df_value, logger)
 
         # Tokenize the data
-        ws = CkipWordSegmenter(model="bert-base")
-        pos = CkipPosTagger(model="bert-base")
-        df_value = tokenize_news_content_with_ckiptransformers(df_value, ws, logger)  
-
+        ws = WS("./ckiptagger")
+        pos = POS("./ckiptagger")
+        df_value = tokenize_news_content_with_ckiptagger(df_value, ws, logger)
+        
         # Remove stop words
         stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
 
