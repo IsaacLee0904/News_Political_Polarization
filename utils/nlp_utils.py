@@ -188,6 +188,7 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold, logge
         tfidf_matrix = vectorizer.transform(df['tokenized_content_TF-IDF'].tolist())
         tfidf_scores = np.sum(tfidf_matrix, axis=0).A1
         sorted_indices = np.argsort(tfidf_scores)[::-1]
+        
     except Exception as e:
         logger.error(f"Error computing TF-IDF scores: {e}")
 

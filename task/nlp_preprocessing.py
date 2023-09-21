@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 
 # NLP packages
 from ckip_transformers.nlp import CkipWordSegmenter, CkipPosTagger
-# data_utils.download_data_gdown("./ckiptagger/")  # only run if excute first time 
 import tensorflow as tf
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
