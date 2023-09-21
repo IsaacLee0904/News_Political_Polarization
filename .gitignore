@@ -1,4 +1,5 @@
 **/__pycache__/
 ckiptagger/
 **.DS_Store
-touch log/.gitkeep
+log/*
+!log/.gitkeep
