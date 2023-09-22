@@ -28,6 +28,7 @@ from utils.nlp_utils import (
     tsne_visualization,
     save_plot
 )
+from utils.gpu_utils import check_gpu_availability
 
 # Configuration settings
 warnings.filterwarnings("ignore")
@@ -94,6 +95,9 @@ def main():
         # 'alongside_elections': alongside_elections_df,
         # 'algal_reef': algal_reef_df
     }
+
+    # check the GPU availability
+    check_gpu_availability(logger)
 
     for df_key, df_value in final_data.items():
         print(f"Processing {df_key}...")
