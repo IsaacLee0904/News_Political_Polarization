@@ -3,3 +3,4 @@ ckiptagger/
 **.DS_Store
 log/*
 !log/.gitkeep
+venv/
