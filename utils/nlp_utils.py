@@ -132,7 +132,7 @@ def clean_tokens(df, stop_words, logger):
 
     return df
 
-def compute_tfidf(corpus):
+def compute_tfidf(corpus, logger):
     """
     Compute the TF-IDF matrix for a given corpus.
 
@@ -146,8 +146,20 @@ def compute_tfidf(corpus):
     - vectorizer: TfidfVectorizer object
         The vectorizer object used for transformation.
     """
+    logger.info("Computing TF-IDF matrix for the given corpus.")
+    
     vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(corpus)
+    
+    try:
+        tfidf_matrix = vectorizer.fit_transform(corpus)
+        logger.info("Successfully computed the TF-IDF matrix.")
+    except Exception as e:
+        logger.error("Failed to compute the TF-IDF matrix.")
+        logger.exception(e)
+        raise
+    
+    logger.info("Number of documents in the corpus: %d", len(corpus))
+    logger.info("Number of features (unique words) in the corpus: %d", len(vectorizer.get_feature_names_out()))
     
     return tfidf_matrix, vectorizer
 
