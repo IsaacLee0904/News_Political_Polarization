@@ -251,7 +251,7 @@ def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4)
 
     return model
 
-def filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words):
+def filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger):
     """
     Filter out columns from the tfidf_matrix corresponding to common_words.
     """
