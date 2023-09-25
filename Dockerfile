@@ -25,6 +25,7 @@ RUN /bin/bash -c "source $HOME/miniconda/bin/activate env && \
     pip install --upgrade pip && \
     pip install ckiptagger[tf,gdown]==0.2.1 && \
     pip install ckip-transformers && \
+    pip install torch==1.9.1 && \
     pip install bs4==0.0.1 && \
     pip install requests==2.25.1 && \
     pip install scrapy==2.5.0 && \
