@@ -293,7 +293,7 @@ def tsne_visualization(tfidf_matrix, df_value, logger):
         Key to be used for filename prefix.
     """ 
     # Define a color map for different sources
-    colormap = {
+    source_list = {
         'Udn': 'red',
         'Chinatimes': 'blue',
         'Libnews': 'green'
@@ -301,7 +301,7 @@ def tsne_visualization(tfidf_matrix, df_value, logger):
 
     try:
         # Get the colors for each sample
-        colors = [colormap[source] for source in source_list]
+        colors = [source_list[source] for source in source_list]
 
         # Calculate the cosine similarity between words
         similarity_matrix = cosine_similarity(tfidf_matrix)
@@ -312,7 +312,7 @@ def tsne_visualization(tfidf_matrix, df_value, logger):
 
         # Visualization
         plt.figure(figsize=(10, 10))
-        for source, color in colormap.items():
+        for source, color in source_list.items():
             plt.scatter(low_data[np.array(source_list) == source, 0], 
                         low_data[np.array(source_list) == source, 1], 
                         c=color, label=source)
