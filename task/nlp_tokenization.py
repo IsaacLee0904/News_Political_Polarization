@@ -1,15 +1,10 @@
 # import basic packages
-import sys, os, glob, json, re, warnings, inspect
+import sys, os, warnings
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 
 # NLP packages
 from ckip_transformers.nlp import CkipWordSegmenter, CkipPosTagger
 import tensorflow as tf
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.manifold import TSNE
 
 # import modules
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,22 +12,18 @@ sys.path.append(project_root)
 from utils.log_utils import set_logger
 from utils.db_utils import create_connection, get_all_tables_from_db, close_connection
 from utils.etl_utils import save_extractdf_to_csv
-from utils.nlp_utils import (
-    clean_text, 
-    tokenize_news_content_with_ckiptransformers, 
-    extract_content_words, 
-    clean_tokens, 
-    compute_tfidf, 
-    filter_common_words_with_tfidf, 
-    filter_tfidf_matrix, 
-    tsne_visualization,
-    save_plot
-)
+from utils.nlp_utils import clean_text, tokenize_news_content_with_ckiptransformers
 from utils.gpu_utils import check_gpu_availability
 
 # Configuration settings
 warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+def print_data_shapes(shapes, label):
+    print(f"---------------- {label} -------------------")
+    for name, shape in shapes.items():
+        print(f"{name}: {shape}")
+    print('\n')
 
 def main():
 
@@ -60,10 +51,7 @@ def main():
     }
 
     # Format and print the shapes 
-    print("---------------- raw_data_shape -------------------")
-    for name, shape in shapes.items():
-        print(f"{name}: {shape}")
-    print('\n')
+    print_data_shapes(shapes, 'raw_data_shape')
 
     # Filter the DataFrames
     filtered_data = {key: df[df['content'].str.len() >= 50] for key, df in all_data.items()}
@@ -82,17 +70,14 @@ def main():
     }
 
     # Format and print the shapes 
-    print("---------------- clean_data_shape -------------------")
-    for name, shape in new_shapes.items():
-        print(f"{name}: {shape}")
-    print('\n')
+    print_data_shapes(new_shapes, 'clean_data_shape')
 
     # NLP processing
     final_data = {
-        'nuclear_power': nuclear_power_df.head(100),
-        # 'ractopamine': ractopamine_df,
-        # 'alongside_elections': alongside_elections_df,
-        # 'algal_reef': algal_reef_df
+        'nuclear_power': nuclear_power_df.head,
+        'ractopamine': ractopamine_df,
+        'alongside_elections': alongside_elections_df,
+        'algal_reef': algal_reef_df
     }
 
     # check the GPU availability
