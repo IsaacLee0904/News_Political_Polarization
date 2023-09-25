@@ -21,9 +21,6 @@ def get_all_json():
 
     return json_list
 
-import pandas as pd
-import os
-
 def load_csvs_from_directory(directory_path):
     """
     Load all CSV files from the specified directory into a dictionary of DataFrames.
@@ -88,8 +85,6 @@ def save_csv_to_db(csv_filename, db_path):
     conn = sqlite3.connect(db_path)
     data.to_sql(table_name, conn, if_exists='append', index=False)
     conn.close()
-
-import inspect
 
 def save_extractdf_to_csv(df, path, filename):
     """
