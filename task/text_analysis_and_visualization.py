@@ -1,11 +1,11 @@
 # import basic packages
 import sys, os, glob, json, re, warnings, inspect
+import csv
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 # NLP packages
-from ckip_transformers.nlp import CkipWordSegmenter, CkipPosTagger
 import tensorflow as tf
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -18,8 +18,6 @@ from utils.log_utils import set_logger
 from utils.db_utils import create_connection, get_all_tables_from_db, close_connection
 from utils.etl_utils import save_extractdf_to_csv
 from utils.nlp_utils import (
-    clean_text, 
-    tokenize_news_content_with_ckiptransformers, 
     extract_content_words, 
     clean_tokens, 
     compute_tfidf, 
@@ -38,70 +36,29 @@ def main():
 
     ''' setting configure '''
     logger = set_logger()
-    logger.info("Starting NLP preprocessing...")
+    logger.info("Starting NLP preprocessing : TF-IDF and t-SNE...")
 
     threshold_value = 0.7
+    processing_data_path = os.path.join(project_root, 'data', 'tokenized_data')
     extract_data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_{}'.format(threshold_value))
 
-    logger.info("Connecting to the database...")
-    conn = create_connection()
-    logger.info("Fetching all tables from the database...")
-    all_data = get_all_tables_from_db(conn)
-
-    nuclear_power_df = all_data['nuclear_power'] # 核四
-    ractopamine_df = all_data['ractopamine'] # 美豬
-    alongside_elections_df = all_data['alongside_elections'] # 公投綁大選
-    algal_reef_df = all_data['algal_reef'] # 珍愛藻礁
-
-    shapes = {
-        'nuclear_power_df': nuclear_power_df.shape,
-        'ractopamine_df': ractopamine_df.shape,
-        'alongside_elections_df': alongside_elections_df.shape,
-        'algal_reef_df': algal_reef_df.shape
-    }
-
-    # Format and print the shapes 
-    print("---------------- raw_data_shape -------------------")
-    for name, shape in shapes.items():
-        print(f"{name}: {shape}")
-    print('\n')
-
-    # Filter the DataFrames
-    filtered_data = {key: df[df['content'].str.len() >= 50] for key, df in all_data.items()}
-
-    # Extract the filtered DataFrames
-    nuclear_power_df = filtered_data['nuclear_power']
-    ractopamine_df = filtered_data['ractopamine']
-    alongside_elections_df = filtered_data['alongside_elections']
-    algal_reef_df = filtered_data['algal_reef']
-
-    new_shapes = {
-        'nuclear_power_df': nuclear_power_df.shape,
-        'ractopamine_df': ractopamine_df.shape,
-        'alongside_elections_df': alongside_elections_df.shape,
-        'algal_reef_df': algal_reef_df.shape
-    }
-
-    # Format and print the shapes 
-    print("---------------- clean_data_shape -------------------")
-    for name, shape in new_shapes.items():
-        print(f"{name}: {shape}")
-    print('\n')
-
-    # NLP processing
-    final_data = {
-        'nuclear_power': nuclear_power_df,
-        # 'ractopamine': ractopamine_df,
-        # 'alongside_elections': alongside_elections_df,
-        # 'algal_reef': algal_reef_df
-    }
+    csv_files = glob.glob(os.path.join(processing_data_path, '*.csv'))
 
     # check the GPU availability
     check_gpu_availability(logger)
 
-    for df_key, df_value in final_data.items():
+    # NLP processing
+    for csv_file in csv_files:  
+        
+        df_key = os.path.basename(csv_file).replace('.csv', '')
+        print(df_key)
         print(f"Processing {df_key}...")
         logger.info(f"Processing {df_key}...")
+
+        # Set the field size limit to a large value
+        csv.field_size_limit(2**30)
+        
+        df_value = pd.read_csv(csv_file, engine='python', low_memory=True)
 
         # Content cleaning 
         df_value = clean_text(df_value, logger)
@@ -137,7 +94,7 @@ def main():
         save_extractdf_to_csv(df_value, extract_data_path, df_key, logger)
         logger.info(f"Data for {df_key} saved successfully.")
         
-    logger.info("NLP preprocessing completed.")
+    logger.info("NLP preprocessing  : TF-IDF and t-SNE completed.")
 
 if __name__ == "__main__":
     main()
