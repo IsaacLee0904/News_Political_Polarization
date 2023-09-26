@@ -24,7 +24,8 @@ from utils.nlp_utils import (
     filter_common_words_with_tfidf, 
     filter_tfidf_matrix, 
     tsne_visualization,
-    save_plot
+    save_plot,
+    word_frequency_calculation
 )
 from utils.gpu_utils import check_gpu_availability
 
@@ -51,7 +52,6 @@ def main():
     for csv_file in csv_files:  
         
         df_key = os.path.basename(csv_file).replace('.csv', '')
-        print(df_key)
         print(f"Processing {df_key}...")
         logger.info(f"Processing {df_key}...")
 
@@ -59,14 +59,7 @@ def main():
         csv.field_size_limit(2**30)
         
         df_value = pd.read_csv(csv_file, engine='python', low_memory=True)
-
-        # Content cleaning 
-        df_value = clean_text(df_value, logger)
-
-        # Tokenize the data
-        ws = CkipWordSegmenter(model="bert-base")
-        pos = CkipPosTagger(model="bert-base")
-        df_value = tokenize_news_content_with_ckiptransformers(df_value, ws, logger)  
+        print(df_value['tokenized_content'][0]) # for debug
 
         # Remove stop words
         stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
@@ -78,21 +71,25 @@ def main():
 
         # TF-IDF
         # Step1. Train the TF-IDF model
+        df_value = df_value.dropna(subset=['tokenized_content'])
+        df_value = df_value.head(500)
         tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist(), logger)   
 
         # Step2. Use the trained vectorizer to filter out common words   
         df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value, logger)
-        common_words = set(df_value['tokenized_content_TF-IDF'].sum().split())
+        print(df_value.head())
+        # print(df_value['tokenized_content_TF-IDF'][0]) # for debug
+        # common_words = set(df_value['tokenized_content_TF-IDF'].sum().split())
 
-        # 3. Filter the TF-IDF matrix using the list of common words.
-        filtered_tfidf_matrix = filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger)
-        tsne_pic = tsne_visualization(filtered_tfidf_matrix, df_value)
-        save_plot(tsne_pic, extract_data_path, df_key)
+        # # 3. Filter the TF-IDF matrix using the list of common words.
+        # filtered_tfidf_matrix = filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger)
+        # tsne_pic = tsne_visualization(filtered_tfidf_matrix, df_value)
+        # save_plot(tsne_pic, extract_data_path, df_key)
 
-        # save extract data to csv
-        logger.info(f"Saving extracted data for {df_key} to CSV...")
-        save_extractdf_to_csv(df_value, extract_data_path, df_key, logger)
-        logger.info(f"Data for {df_key} saved successfully.")
+        # # save extract data to csv
+        # logger.info(f"Saving extracted data for {df_key} to CSV...")
+        # save_extractdf_to_csv(df_value, extract_data_path, df_key, logger)
+        # logger.info(f"Data for {df_key} saved successfully.")
         
     logger.info("NLP preprocessing  : TF-IDF and t-SNE completed.")
 
