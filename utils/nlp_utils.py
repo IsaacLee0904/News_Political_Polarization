@@ -165,33 +165,6 @@ def generate_word_embeddings(corpus, size=100, window=5, min_count=1, workers=4)
 
     return model
 
-def filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger):
-    """
-    Filter out columns from the tfidf_matrix corresponding to common_words.
-    """
-    # Log the initial shape of the tfidf_matrix
-    initial_shape = tfidf_matrix.shape
-    logger.info(f"Initial shape of tfidf_matrix: {initial_shape}")
-    
-    # Get the indices of the common words
-    indices = [vectorizer.vocabulary_[word] for word in common_words if word in vectorizer.vocabulary_]
-    
-    # Log the number of common words found in the vocabulary
-    logger.info(f"Number of common words found in the vocabulary: {len(indices)}")
-    
-    # Check if any common word is not in the vocabulary
-    not_in_vocab = [word for word in common_words if word not in vectorizer.vocabulary_]
-    if not_in_vocab:
-        logger.warning(f"Common words not found in the vocabulary: {not_in_vocab}")
-    
-    # Remove the columns corresponding to the common words
-    filtered_matrix = tfidf_matrix[:, [i for i in range(tfidf_matrix.shape[1]) if i not in indices]]
-    
-    # Log the shape of the filtered_matrix
-    logger.info(f"Shape of filtered_matrix after removing common words: {filtered_matrix.shape}")
-    
-    return filtered_matrix
-
 def tsne_visualization(tfidf_matrix, df_value, logger):
     """
     Visualize the TF-IDF matrix using t-SNE and save the plot based on news source.

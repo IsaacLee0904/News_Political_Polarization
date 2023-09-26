@@ -43,7 +43,7 @@ def compute_tfidf(corpus, model_save_path, filename, logger):
     
     return tfidf_matrix, vectorizer
 
-def load_tfidf_objects(model_save_path, logger):
+def load_tfidf_objects(model_save_path, filename, logger):
     """
     Load the TF-IDF matrix and the TfidfVectorizer object from the specified directory.
     
@@ -63,9 +63,9 @@ def load_tfidf_objects(model_save_path, logger):
     - Exception: If loading the TF-IDF matrix or vectorizer object fails.
     """
     try:
-        with open(os.path.join(model_save_path, 'tfidf_matrix.pickle'), 'rb') as f:
+        with open(os.path.join(model_save_path, f'{filename}_tfidf_matrix.pickle'), 'rb') as f:
             tfidf_matrix = pickle.load(f)
-        with open(os.path.join(model_save_path, 'vectorizer.pickle'), 'rb') as f:
+        with open(os.path.join(model_save_path, f'{filename}_vectorizer.pickle'), 'rb') as f:
             vectorizer = pickle.load(f)
         logger.info(f"Successfully loaded the TF-IDF matrix and vectorizer from {model_save_path}.")
         return tfidf_matrix, vectorizer
@@ -127,3 +127,30 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold, logge
     logger.info("Word filtering completed.")
 
     return df
+
+def filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger):
+    """
+    Filter out columns from the tfidf_matrix corresponding to common_words.
+    """
+    # Log the initial shape of the tfidf_matrix
+    initial_shape = tfidf_matrix.shape
+    logger.info(f"Initial shape of tfidf_matrix: {initial_shape}")
+    
+    # Get the indices of the common words
+    indices = [vectorizer.vocabulary_[word] for word in common_words if word in vectorizer.vocabulary_]
+    
+    # Log the number of common words found in the vocabulary
+    logger.info(f"Number of common words found in the vocabulary: {len(indices)}")
+    
+    # Check if any common word is not in the vocabulary
+    not_in_vocab = [word for word in common_words if word not in vectorizer.vocabulary_]
+    if not_in_vocab:
+        logger.warning(f"Common words not found in the vocabulary: {not_in_vocab}")
+    
+    # Remove the columns corresponding to the common words
+    filtered_matrix = tfidf_matrix[:, [i for i in range(tfidf_matrix.shape[1]) if i not in indices]]
+    
+    # Log the shape of the filtered_matrix
+    logger.info(f"Shape of filtered_matrix after removing common words: {filtered_matrix.shape}")
+    
+    return filtered_matrix

@@ -17,16 +17,8 @@ sys.path.append(project_root)
 from utils.log_utils import set_logger
 from utils.db_utils import create_connection, get_all_tables_from_db, close_connection
 from utils.etl_utils import save_extractdf_to_csv
-from utils.nlp_utils import (
-    extract_content_words, 
-    clean_tokens, 
-    compute_tfidf, 
-    filter_common_words_with_tfidf, 
-    filter_tfidf_matrix, 
-    tsne_visualization,
-    save_plot,
-    word_frequency_calculation
-)
+from utils.nlp_utils import tsne_visualization, save_plot, word_frequency_calculation
+from utils.tf_idf_utils import load_tfidf_objects, filter_common_words_with_tfidf, filter_tfidf_matrix
 from utils.gpu_utils import check_gpu_availability
 
 # Configuration settings
@@ -39,7 +31,7 @@ def main():
     logger = set_logger()
     logger.info("Starting NLP preprocessing : TF-IDF and t-SNE...")
 
-    threshold_value = 0.7
+    threshold_value = 0.5
     processing_data_path = os.path.join(project_root, 'data', 'tokenized_data')
     extract_data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_{}'.format(threshold_value))
 
@@ -61,23 +53,21 @@ def main():
         df_value = pd.read_csv(csv_file, engine='python', low_memory=True)
         print(df_value['tokenized_content'][0]) # for debug
 
-        # Remove stop words
-        stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
-
-        with open(stop_words_path, 'r', encoding='utf-8') as file:
-            stop_words = [line.strip() for line in file]
-
-        df_value = clean_tokens(df_value, stop_words, logger) 
-
         # TF-IDF
-        # Step1. Train the TF-IDF model
-        df_value = df_value.dropna(subset=['tokenized_content'])
-        df_value = df_value.head(500)
-        tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist(), logger)   
+        # Step1. Load the pre-train TF-IDF matrix
+        logger.info(f"Loading TF-IDF matrix for {df_key}...")
+        model_save_path = os.path.join(project_root, 'model', 'tf_idf_model', '{}'.format(df_key))
+        try:
+            tfidf_matrix, vectorizer = load_tfidf_objects(model_save_path, df_key, logger)
+            logger.info(f"TF-IDF matrix shape for {df_key}: {tfidf_matrix.shape}")
+            logger.info(f"Number of features for {df_key}: {len(vectorizer.get_feature_names_out())}")
+        except Exception as e:
+            logger.error(f"Failed to load TF-IDF objects for {df_key}")
+            logger.exception(e)
 
         # Step2. Use the trained vectorizer to filter out common words   
-        df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value, logger)
-        print(df_value.head())
+        # df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value, logger)
+        # print(df_value.head())
         # print(df_value['tokenized_content_TF-IDF'][0]) # for debug
         # common_words = set(df_value['tokenized_content_TF-IDF'].sum().split())
 
