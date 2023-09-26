@@ -38,6 +38,7 @@ RUN /bin/bash -c "source $HOME/miniconda/bin/activate env && \
     pip install python-Levenshtein && \
     pip install urllib3==1.26.6 && \
     pip install networkx && \
-    pip install chardet==4.0.0"
+    pip install chardet==4.0.0 && \
+    pip install joblib"
 
 CMD ["python", "main.py"]
