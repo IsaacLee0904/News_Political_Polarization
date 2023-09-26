@@ -18,46 +18,39 @@ from utils.gpu_utils import check_gpu_availability
 warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-def main():
+def load_stop_words(path):
+    with open(path, 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file]
 
-    ''' setting configure '''
+
+def main():
     logger = set_logger()
     logger.info("Starting NLP preprocessing : TF-IDF model training...")
 
-    training_data_path = os.path.join(project_root, 'data', 'tokenized_data')
-    model_save_path = os.path.join(project_root, 'model', 'tf_idf_model')
+    training_data_path = os.path.join(PROJECT_ROOT, 'data', 'tokenized_data')
+    model_save_path = os.path.join(PROJECT_ROOT, 'model', 'tf_idf_model')
 
     csv_files = glob.glob(os.path.join(training_data_path, '*.csv'))
 
-    # check the GPU availability
     check_gpu_availability(logger)
 
-    # NLP processing
-    for csv_file in csv_files:  
-        
+    stop_words_path = os.path.join(PROJECT_ROOT, 'assets', 'stop_words.txt')
+    stop_words = load_stop_words(stop_words_path)
+
+    for csv_file in csv_files:
         df_key = os.path.basename(csv_file).replace('.csv', '')
-        print(f"Processing {df_key}...")
         logger.info(f"Processing {df_key}...")
 
-        # Set the field size limit to a large value
         csv.field_size_limit(2**30)
         
         df_value = pd.read_csv(csv_file, engine='python', low_memory=True)
+        df_value = clean_tokens(df_value, stop_words, logger)
 
-        # Remove stop words
-        stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
-
-        with open(stop_words_path, 'r', encoding='utf-8') as file:
-            stop_words = [line.strip() for line in file]
-
-        df_value = clean_tokens(df_value, stop_words, logger) 
-
-        # TF-IDF
-        # Step1. Train the TF-IDF model
         df_value = df_value.dropna(subset=['tokenized_content'])
-        tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist(), model_save_path, df_key, logger)   
-        
-    logger.info("NLP preprocessing  : TF-IDF model training.")
+        tfidf_matrix, vectorizer = compute_tfidf(df_value['tokenized_content'].tolist(), model_save_path, df_key, logger)
+
+    logger.info("NLP preprocessing : TF-IDF model training completed.")
+
 
 if __name__ == "__main__":
     main()
