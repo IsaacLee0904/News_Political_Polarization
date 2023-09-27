@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -154,3 +155,58 @@ def filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger):
     logger.info(f"Shape of filtered_matrix after removing common words: {filtered_matrix.shape}")
     
     return filtered_matrix
+
+def tsne_visualization(tfidf_matrix, df_value, logger):
+    """
+    Visualize the TF-IDF matrix using t-SNE and save the plot based on news source.
+    
+    Parameters:
+    - tfidf_matrix: array-like, shape (n_samples, n_features)
+        The TF-IDF matrix.
+    - df_value: pandas DataFrame
+        The dataframe containing the source column.
+    - folder: str
+        The directory where the plot should be saved.
+    - df_key: str
+        Key to be used for filename prefix.
+    """ 
+    # Define a color map for different sources
+    source_list = {
+        'Udn': 'red',
+        'Chinatimes': 'blue',
+        'Libnews': 'green'
+    }
+
+    try:
+        # Get the colors for each sample
+        colors = [source_list[source] for source in source_list]
+
+        # Calculate the cosine similarity between words
+        similarity_matrix = cosine_similarity(tfidf_matrix)
+
+        # Dimensionality reduction with t-SNE
+        tsne_model = TSNE(n_components=2, random_state=0, init='random')
+        low_data = tsne_model.fit_transform(tfidf_matrix.toarray())
+
+        # Visualization
+        plt.figure(figsize=(10, 10))
+        for source, color in source_list.items():
+            plt.scatter(low_data[np.array(source_list) == source, 0], 
+                        low_data[np.array(source_list) == source, 1], 
+                        c=color, label=source)
+        plt.title('t-SNE visualization of TF-IDF matrix')
+        plt.legend()
+
+        return plt
+    except Exception as e:
+        logger.error(f"Error in tsne_visualization: {e}")
+        raise
+
+def save_plot(plt_obj, folder, filename_prefix):
+    """
+    Save the given plot object to a file.
+    """
+    filename = os.path.join(folder, f"{filename_prefix}_plt.png")
+    plt_obj.savefig(filename)
+    plt_obj.close()
+    print(f"Plot saved to: {filename}")

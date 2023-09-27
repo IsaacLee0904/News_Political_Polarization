@@ -18,7 +18,7 @@ def compute_word_frequencies(data):
 
 def main():
 
-    data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_0.6')
+    data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_0.5')
 
     data_dict = load_csvs_from_directory(data_path)
     word_frequencies = compute_word_frequencies(data_dict)
