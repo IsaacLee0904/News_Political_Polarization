@@ -1,9 +1,10 @@
+# import basic packages
 import sys, os, glob, json, re
 import pandas as pd
 
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# import modules
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(project_root)
-
 from utils.db_utils import create_connection
 from utils.db_utils import get_all_tables_from_db
 from utils.db_utils import close_connection
