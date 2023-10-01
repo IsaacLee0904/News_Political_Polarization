@@ -27,14 +27,14 @@ def main():
     logger = set_logger()
     logger.info("Starting NLP preprocessing : TF-IDF model training...")
 
-    training_data_path = os.path.join(PROJECT_ROOT, 'data', 'tokenized_data')
-    model_save_path = os.path.join(PROJECT_ROOT, 'model', 'tf_idf_model')
+    training_data_path = os.path.join(project_root, 'data', 'tokenized_data')
+    model_save_path = os.path.join(project_root, 'model', 'tf_idf_model')
 
     csv_files = glob.glob(os.path.join(training_data_path, '*.csv'))
 
     check_gpu_availability(logger)
 
-    stop_words_path = os.path.join(PROJECT_ROOT, 'assets', 'stop_words.txt')
+    stop_words_path = os.path.join(project_root, 'assets', 'stop_words.txt')
     stop_words = load_stop_words(stop_words_path)
 
     for csv_file in csv_files:

@@ -21,8 +21,9 @@ def compute_tfidf(corpus, model_save_path, filename, logger):
     """
     logger.info("Computing TF-IDF matrix for the given corpus.")
     
-    vectorizer = TfidfVectorizer()
-    
+    # vectorizer = TfidfVectorizer() # normal tf-idf
+    vectorizer = TfidfVectorizer(ngram_range=(1, 2)) # tf-idf with n-gram
+
     try:
         tfidf_matrix = vectorizer.fit_transform(corpus)
         logger.info("Successfully computed the TF-IDF matrix.")
