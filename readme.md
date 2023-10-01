@@ -40,34 +40,6 @@ This project aims to analyze news content by converting it into a text network, 
 ├── assets
 │   ├── setup_db_flow.jpg
 │   └── stop_words.txt
-├── crawlers
-│   ├── chinatimes
-│   │   ├── chinatimes
-│   │   │   ├── __init__.py
-│   │   │   ├── items.py
-│   │   │   ├── middlewares.py
-│   │   │   ├── pipelines.py
-│   │   │   ├── settings.py
-│   │   │   └── spiders
-│   │   │       ├── __init__.py
-│   │   │       └── chinatimesSpider.py
-│   │   ├── chinatimes_spider_doc.md
-│   │   └── scrapy.cfg
-│   ├── libnews
-│   │   ├── libnews
-│   │   │   ├── __init__.py
-│   │   │   ├── items.py
-│   │   │   ├── middlewares.py
-│   │   │   ├── pipelines.py
-│   │   │   ├── settings.py
-│   │   │   └── spiders
-│   │   │       ├── __init__.py
-│   │   │       └── libnewsSpider.py
-│   │   ├── libnews_spider_doc.md
-│   │   └── scrapy.cfg
-│   └── udnews
-│       ├── udnSpider.py
-│       └── udnews_Spider_doc.md
 ├── data
 │   ├── backup
 │   │   ├── 20230825145838_Chinatimes_萊豬.json
@@ -95,6 +67,7 @@ This project aims to analyze news content by converting it into a text network, 
 │   │   │   ├── alongside_elections.csv
 │   │   │   ├── nuclear_power.csv
 │   │   │   └── ractopamine.csv
+│   │   ├── threshold_0.3 2
 │   │   ├── threshold_0.5
 │   │   │   ├── algal_reef.csv
 │   │   │   ├── alongside_elections.csv
@@ -129,6 +102,12 @@ This project aims to analyze news content by converting it into a text network, 
 │       ├── nuclear_power.csv
 │       └── ractopamine.csv
 ├── docs
+│   ├── crawlers_docs
+│   │   ├── chinatimes_spider_doc.md
+│   │   ├── libnews_spider_doc.md
+│   │   └── udnews_Spider_doc.md
+│   └── src_docs
+│       └── src_doc.md
 ├── model
 │   ├── sentence_transformer_model
 │   └── tf_idf_model
@@ -145,19 +124,46 @@ This project aims to analyze news content by converting it into a text network, 
 │           ├── ractopamine_tfidf_matrix.pickle
 │           └── ractopamine_vectorizer.pickle
 ├── readme.md
-├── reference
+├── references
 ├── reports
 ├── setup.py
 ├── src
 │   ├── __init__.py
-│   ├── data_initial_processing.py
-│   ├── data_integrity_verifier.py
-│   ├── gpu_inspector.py
-│   ├── nlp_analysis_and_visualization.py
-│   ├── nlp_tfidf_model_training.py
-│   ├── nlp_tokenization.py
-│   ├── setup_db.py
-│   └── task_doc.md
+│   ├── buildup_src
+│   │   ├── gpu_inspector.py
+│   │   └── setup_db.py
+│   ├── crawlers_src
+│   │   ├── chinatimes
+│   │   │   ├── chinatimes
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── items.py
+│   │   │   │   ├── middlewares.py
+│   │   │   │   ├── pipelines.py
+│   │   │   │   ├── settings.py
+│   │   │   │   └── spiders
+│   │   │   │       ├── __init__.py
+│   │   │   │       └── chinatimesSpider.py
+│   │   │   └── scrapy.cfg
+│   │   ├── libnews
+│   │   │   ├── libnews
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── items.py
+│   │   │   │   ├── middlewares.py
+│   │   │   │   ├── pipelines.py
+│   │   │   │   ├── settings.py
+│   │   │   │   └── spiders
+│   │   │   │       ├── __init__.py
+│   │   │   │       └── libnewsSpider.py
+│   │   │   └── scrapy.cfg
+│   │   └── udnews
+│   │       └── udnSpider.py
+│   ├── data_src
+│   │   ├── data_initial_processing.py
+│   │   └── data_integrity_verifier.py
+│   └── nlp_src
+│       ├── nlp_analysis_and_visualization.py
+│       ├── nlp_tfidf_model_training.py
+│       └── nlp_tokenization.py
 └── utils
     ├── __init__.py
     ├── db_query.py
