@@ -171,7 +171,7 @@ def tsne_visualization(tfidf_matrix, df_value, logger):
     - df_key: str
         Key to be used for filename prefix.
     """ 
-    # Define a color map for different sources
+   # Define a color map for different sources
     source_list = {
         'Udn': 'red',
         'Chinatimes': 'blue',
@@ -179,11 +179,8 @@ def tsne_visualization(tfidf_matrix, df_value, logger):
     }
 
     try:
-        # Get the colors for each sample
-        colors = [source_list[source] for source in source_list]
-
-        # Calculate the cosine similarity between words
-        similarity_matrix = cosine_similarity(tfidf_matrix)
+        # Get the colors for each sample based on the source
+        colors = df_value['source'].map(source_list).values
 
         # Dimensionality reduction with t-SNE
         tsne_model = TSNE(n_components=2, random_state=0, init='random')
@@ -192,8 +189,9 @@ def tsne_visualization(tfidf_matrix, df_value, logger):
         # Visualization
         plt.figure(figsize=(10, 10))
         for source, color in source_list.items():
-            plt.scatter(low_data[np.array(source_list) == source, 0], 
-                        low_data[np.array(source_list) == source, 1], 
+            indices = df_value[df_value['source'] == source].index
+            plt.scatter(low_data[indices, 0], 
+                        low_data[indices, 1], 
                         c=color, label=source)
         plt.title('t-SNE visualization of TF-IDF matrix')
         plt.legend()
@@ -201,7 +199,7 @@ def tsne_visualization(tfidf_matrix, df_value, logger):
         return plt
     except Exception as e:
         logger.error(f"Error in tsne_visualization: {e}")
-        raise
+        raise 
 
 def save_plot(plt_obj, folder, filename_prefix):
     """

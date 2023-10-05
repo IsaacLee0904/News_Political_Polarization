@@ -65,17 +65,19 @@ def main():
             logger.error(f"Failed to load TF-IDF objects for {df_key}")
             logger.exception(e)
 
-        # Step2. Use the trained vectorizer to filter out common words   
+        # Step 2: Use the trained vectorizer to filter out common words
         df_value['tokenized_content'] = df_value['tokenized_content'].fillna('')
         df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value, logger)
-        print(df_value['tokenized_content_TF-IDF'][0]) # for debug
-        common_words = set(df_value['tokenized_content_TF-IDF'].sum().split()) 
+        print(df_value['tokenized_content_TF-IDF'][0])  # for debug
+        # Extract common words based on the filtered content
+        common_words = set(df_value['tokenized_content_TF-IDF'].sum().split())
 
-        # 3. Filter the TF-IDF matrix using the list of common words.
+        # Step 3: Filter the TF-IDF matrix using the list of common words
         filtered_tfidf_matrix = filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger)
+        # Visualize the filtered TF-IDF matrix using t-SNE
         tsne_pic = tsne_visualization(filtered_tfidf_matrix, df_value)
+        # Save the t-SNE plot
         save_plot(tsne_pic, extract_data_path, df_key)
-
         # save extract data to csv
         logger.info(f"Saving extracted data for {df_key} to CSV...")
         save_extractdf_to_csv(df_value, extract_data_path, df_key)
