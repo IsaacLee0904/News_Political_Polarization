@@ -30,7 +30,7 @@ def main():
     logger = set_logger()
     logger.info("Starting NLP preprocessing : TF-IDF and t-SNE...")
 
-    threshold_value = 0.3 # the threshold value bigger then keep more keywords
+    threshold_value = 0.9 # the threshold value bigger then keep more keywords
     processing_data_path = os.path.join(project_root, 'data', 'tokenized_data')
     extract_data_path = os.path.join(project_root, 'data', 'extract_data', 'threshold_{}'.format(threshold_value))
 
@@ -69,7 +69,7 @@ def main():
         df_value['tokenized_content'] = df_value['tokenized_content'].fillna('')
         df_value = filter_common_words_with_tfidf(df_value, 'tokenized_content', vectorizer, threshold_value, logger)
         print(df_value['tokenized_content_TF-IDF'][0]) # for debug
-        # common_words = set(df_value['tokenized_content_TF-IDF'].sum().split())
+        common_words = set(df_value['tokenized_content_TF-IDF'].sum().split()) 
 
         # 3. Filter the TF-IDF matrix using the list of common words.
         filtered_tfidf_matrix = filter_tfidf_matrix(tfidf_matrix, vectorizer, common_words, logger)
