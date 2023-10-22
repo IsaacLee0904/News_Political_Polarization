@@ -93,8 +93,8 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold, logge
     - vectorizer: TfidfVectorizer object
         A pre-trained TF-IDF vectorizer for transforming the text data.
     - threshold: float, default=0.6
-        Specifies the proportion of the most common words to filter out based on their TF-IDF scores.
-        For example, a threshold of 0.85 means that the top 85% of words, ranked by their TF-IDF scores, will be removed.
+        Specifies the proportion of the least informative words to filter out based on their TF-IDF scores.
+        For example, a threshold of 0.85 means that the bottom 85% of words, ranked by their TF-IDF scores, will be removed.
 
     Returns:
     - df: pandas DataFrame
@@ -112,7 +112,7 @@ def filter_common_words_with_tfidf(df, column_name, vectorizer, threshold, logge
         # Compute the TF-IDF scores for the filtered words
         tfidf_matrix = vectorizer.transform(df['tokenized_content_TF-IDF'].tolist())
         tfidf_scores = np.sum(tfidf_matrix, axis=0).A1
-        sorted_indices = np.argsort(tfidf_scores)[::-1]
+        sorted_indices = np.argsort(tfidf_scores)  # Change from descending to ascending order
         
     except Exception as e:
         logger.error(f"Error computing TF-IDF scores: {e}")
